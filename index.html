@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SR Enterprises</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  
+  <style>
+    .print-area {
+      width: 800px;
+      margin: 20px auto;
+      border: 2px solid #000;
+      background: white;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    }
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+      * {
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+      }
+      html, body {
+        height: auto;
+        margin: 0;
+        padding: 0;
+      }
+      .no-print { display: none !important; }
+      .print-area { 
+        width: 100%;
+        max-width: 8.5in;
+        height: auto;
+        margin: 0;
+        padding: 8px;
+        box-shadow: none;
+        border: 2px solid #000;
+        page-break-after: avoid;
+        page-break-inside: avoid;
+      }
+      body {
+        padding: 0;
+        margin: 0;
+      }
+      table {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 py-8">
+
+  <div class="max-w-5xl mx-auto">
+    <h1 class="text-3xl font-bold text-center mb-8 no-print">SR Enterprises - Dynamic Receipt Generator</h1>
+
+    <!-- Input Form -->
+    <div class="no-print bg-white p-8 rounded-2xl shadow-lg mb-10">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div class="md:col-span-2">
+          <label class="block font-medium mb-1">Invoice Number</label>
+          <input id="invoiceNo" type="text" value="6/2026" 
+                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+        </div>
+
+        <div>
+          <label class="block font-medium mb-1">Date</label>
+          <input id="date" type="date" value="2026-05-05" 
+                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+        </div>
+
+        <div>
+          <label class="block font-medium mb-1">Customer Name</label>
+          <input id="customerName" type="text" value="MR. NANDAN NAMBIAR" 
+                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+        </div>
+
+        <div>
+          <label class="block font-medium mb-1">Type</label>
+          <select id="type" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+            <option value="Rent">Rent</option>
+            <option value="Sale">Sale</option>
+            <option value="Purchase">Purchase</option>
+            <option value="Plot">Plot</option>
+          </select>
+        </div>
+
+        <!-- Address Fields -->
+        <div class="md:col-span-2">
+          <label class="block font-medium mb-1">Address Line 1</label>
+          <input id="address1" type="text" value="BANK OF MAHARASHTRA" 
+                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Address Line 2</label>
+          <input id="address2" type="text" value="SECTOR-1, CBD BELAPUR" 
+                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+        </div>
+        <div>
+          <label class="block font-medium mb-1">City & Pincode</label>
+          <input id="address3" type="text" value="NAVI MUMBAI 400614" 
+                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block font-medium mb-1">Flat / Property Details</label>
+          <textarea id="flatDetails" rows="3" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">Flat No. 403, Ratan Vallabh Vihar CHS, Sector-20, CBD Belapur, Navi Mumbai</textarea>
+        </div>
+
+        <div>
+          <label class="block font-medium mb-1">Flat Number (Short)</label>
+          <input id="flatNo" type="text" value="403" 
+                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+        </div>
+
+        <div>
+          <label class="block font-medium mb-1">Rent Amount (₹)</label>
+          <input id="amount" type="number" value="54000" 
+                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-xl">
+        </div>
+      </div>
+
+      <div class="text-center mt-8">
+        <button onclick="generateReceipt()" 
+                class="bg-green-600 hover:bg-green-700 text-white text-xl font-semibold px-10 py-4 rounded-xl">
+          Generate Receipt
+        </button>
+      </div>
+    </div>
+
+    <!-- Receipt -->
+    <div id="receiptPreview" class="print-area mx-auto">
+      <div class="border-2 border-black p-4">
+        <!-- Header -->
+        <div class="text-center border-b-2 border-gray-300 pb-4">
+          <div class="inline-flex items-center justify-center px-4 py-2 bg-indigo-900 text-white rounded-full text-[10px] font-bold tracking-[0.24em] uppercase mb-3">
+            Official Receipt
+          </div>
+          <h1 class="text-3xl font-extrabold leading-tight text-indigo-900">
+            S R <span class="text-amber-600">ENTERPRISES</span>
+          </h1>
+          <p class="text-sm font-semibold mt-1 leading-tight text-gray-700">Sale • Rent • Purchase • Plot</p>
+          <div class="mt-3 flex flex-row flex-nowrap justify-center gap-3 text-[10px] text-gray-700 overflow-x-auto">
+            <p class="inline-flex items-center gap-1 rounded-full bg-gray-100 border border-gray-200 px-3 py-1 whitespace-nowrap">
+              <span class="text-indigo-900 font-semibold">📍</span>
+              <span class="leading-tight">Shop NO-10, Agroli Gaon, Sec-29, CBD Belapur, Navi Mumbai 400614</span>
+            </p>
+            <p class="inline-flex items-center gap-1 rounded-full bg-green-50 border border-green-200 px-3 py-1 whitespace-nowrap">
+              <span class="text-green-600">📞</span> +91-7021709371
+            </p>
+            <p class="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 whitespace-nowrap">
+              <span class="text-blue-600">✉️</span> rdinesh7021@gmail.com
+            </p>
+          </div>
+        </div>
+
+        <div class="flex justify-between mt-3">
+          <h2 class="text-xl font-bold">INVOICE</h2>
+          <div class="text-right text-xs">
+            <p><strong>Invoice No :</strong> <span id="dispInvoice">6/2026</span></p>
+            <p><strong>Date :</strong> <span id="dispDate">05/05/2026</span></p>
+          </div>
+        </div>
+
+        <div class="mt-2">
+          <p class="text-xs font-medium">To,</p>
+          <p class="font-bold text-sm" id="dispName">MR. NANDAN NAMBIAR</p>
+          <p class="text-xs" id="dispAddr1">BANK OF MAHARASHTRA</p>
+          <p class="text-xs" id="dispAddr2">SECTOR-1, CBD BELAPUR</p>
+          <p class="text-xs" id="dispAddr3">NAVI MUMBAI 400614</p>
+        </div>
+
+        <table class="w-full mt-3 border border-black text-xs">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="border border-black p-2 text-left">PARTICULARS</th>
+              <th class="border border-black p-2 text-center">FLAT NO</th>
+              <th class="border border-black p-2 text-right">AMOUNT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="border border-black p-2">
+                <strong>Flat given on - <span id="dispType">Rent</span></strong><br>
+                <span id="dispFlatDetails" class="text-xs"></span>
+              </td>
+              <td class="border border-black p-2 text-center font-bold" id="dispFlatNo">403</td>
+              <td class="border border-black p-2 text-right font-bold" id="dispAmount">Rs. 54,000/-</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="flex justify-end mt-3">
+          <div class="text-right">
+            <p class="text-sm font-bold">TOTAL AMOUNT</p>
+            <p class="text-lg font-bold" id="dispTotal">Rs. 54,000/-</p>
+          </div>
+        </div>
+
+        <div class="mt-2 text-xs">
+          <strong>Amount in words :</strong> 
+          <span id="dispWords" class="italic block mt-1">Fifty Four Thousand Only</span>
+        </div>
+
+        <div class="mt-4 flex justify-end">
+          <div class="text-center">
+            <div class="w-40 h-12 border-b-2 border-black"></div>
+            <p class="font-bold text-xs mt-1">FOR S R ENTERPRISES</p>
+            <p class="text-xs">PROPRIETOR / AUTHORIZED SIGNATORY</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-6 no-print">
+      <button onclick="window.print()" 
+              class="bg-black text-white px-8 py-3 rounded-lg text-base font-medium hover:bg-gray-800">
+        Print / Save as PDF
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function numberToWords(num) {
+      if (num === 0) return "Zero Only";
+      
+      const below20 = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+                       "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+      const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+      const scales = ["", "Thousand", "Lakh", "Crore"];
+
+      function convertHundreds(n) {
+        let result = "";
+        if (n >= 100) {
+          result += below20[Math.floor(n / 100)] + " Hundred ";
+          n %= 100;
+        }
+        if (n >= 20) {
+          result += tens[Math.floor(n / 10)] + " ";
+          if (n % 10) result += below20[n % 10] + " ";
+        } else if (n > 0) {
+          result += below20[n] + " ";
+        }
+        return result;
+      }
+
+      let str = "";
+      let scaleIndex = 0;
+
+      while (num > 0 && scaleIndex < scales.length) {
+        if (num % 1000 !== 0) {
+          str = convertHundreds(num % 1000) + scales[scaleIndex] + " " + str;
+        }
+        num = Math.floor(num / 1000);
+        scaleIndex++;
+      }
+
+      return str.trim() + " Only";
+    }
+
+    function generateReceipt() {
+      const invoiceNo = document.getElementById('invoiceNo').value;
+      let date = document.getElementById('date').value;
+      
+      if (date) {
+        const d = new Date(date);
+        date = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+      }
+
+      const name = document.getElementById('customerName').value.toUpperCase();
+      const addr1 = document.getElementById('address1').value;
+      const addr2 = document.getElementById('address2').value;
+      const addr3 = document.getElementById('address3').value;
+      const type = document.getElementById('type').value;
+      const flatDetails = document.getElementById('flatDetails').value;
+      const flatNo = document.getElementById('flatNo').value;
+      const amount = parseInt(document.getElementById('amount').value) || 0;
+
+      // Update Receipt
+      document.getElementById('dispInvoice').textContent = invoiceNo;
+      document.getElementById('dispDate').textContent = date;
+      document.getElementById('dispName').textContent = name;
+      document.getElementById('dispAddr1').textContent = addr1;
+      document.getElementById('dispAddr2').textContent = addr2;
+      document.getElementById('dispAddr3').textContent = addr3;
+      document.getElementById('dispType').textContent = type;
+      document.getElementById('dispFlatDetails').textContent = flatDetails;
+      document.getElementById('dispFlatNo').textContent = flatNo;
+      document.getElementById('dispAmount').textContent = `Rs. ${amount.toLocaleString('en-IN')}/-`;
+      document.getElementById('dispTotal').textContent = `Rs. ${amount.toLocaleString('en-IN')}/-`;
+      document.getElementById('dispWords').textContent = numberToWords(amount);
+    }
+
+    // Auto generate on load
+    window.onload = generateReceipt;
+  </script>
+</body>
+</html>
