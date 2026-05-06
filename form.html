@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lease Registration Form — R.K. Enterprises</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+:root {
+  --navy: #0d1b2a;
+  --gold: #b8860b;
+  --gold-light: #d4a843;
+  --cream: #fdf8f0;
+  --white: #ffffff;
+  --border: #d9cfc0;
+  --muted: #7a7265;
+  --field-line: #c8bfaf;
+  --section-bg: #f9f5ee;
+  --red: #8b1a1a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #e8e2d8;
+  min-height: 100vh;
+  padding: 24px 16px 60px;
+}
+
+/* ── Toolbar ── */
+.toolbar {
+  max-width: 860px;
+  margin: 0 auto 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toolbar-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  color: var(--navy);
+  letter-spacing: 0.5px;
+}
+
+.toolbar-title small {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
+
+.btn-pdf {
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  padding: 12px 26px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 4px 14px rgba(13,27,42,0.25);
+}
+.btn-pdf:hover { background: var(--gold); transform: translateY(-2px); }
+.btn-pdf svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ── Document ── */
+#form-doc {
+  max-width: 860px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+
+/* ── Header ── */
+.doc-header {
+  background: var(--navy);
+  padding: 28px 44px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 4px solid var(--gold);
+}
+
+.doc-header-left h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+}
+
+.doc-header-left p {
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* ── Body ── */
+.doc-body { padding: 0 44px 44px; }
+
+/* ── Section ── */
+.form-section { margin-top: 34px; }
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.section-badge {
+  background: var(--navy);
+  color: var(--gold-light);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.section-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: 0.3px;
+}
+
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border) 0%, transparent 100%);
+}
+
+/* ── Field row ── */
+.f-row {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px dashed #e8e0d4;
+}
+
+.f-row:last-child { border-bottom: none; }
+
+.f-label {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.f-label .ltr {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: var(--section-bg);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.f-input {
+  border: none;
+  border-bottom: 1.5px solid var(--field-line);
+  background: transparent;
+  outline: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--navy);
+  padding: 6px 4px;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.f-input:focus { border-bottom-color: var(--gold); }
+
+.f-input::placeholder { color: #ccc; font-size: 12px; }
+
+textarea.f-input {
+  resize: none;
+  min-height: 60px;
+  line-height: 1.7;
+  align-self: flex-start;
+  margin-top: 6px;
+}
+
+/* inline suffix */
+.f-suffix {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.f-suffix-text {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Sender row compact ── */
+.sender-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0 24px;
+}
+
+.sender-field {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.sender-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.from-full {
+  padding: 8px 0 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+
+.from-full label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ── Bank card ── */
+.bank-card {
+  background: var(--section-bg);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--gold);
+  border-radius: 0 0 4px 4px;
+  padding: 20px 24px;
+}
+
+.bank-card .f-row {
+  grid-template-columns: 200px 1fr;
+}
+
+/* ── Financials ── */
+.fin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 32px;
+}
+
+/* ── Broker card ── */
+.broker-card {
+  background: var(--navy);
+  border-radius: 4px;
+  padding: 24px 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 32px;
+}
+
+.broker-section-title {
+  grid-column: 1/-1;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gold-light);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+.broker-field label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 4px;
+}
+
+.broker-field input {
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  background: transparent;
+  outline: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--white);
+  padding: 5px 2px;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.broker-field input:focus { border-bottom-color: var(--gold-light); }
+.broker-field input::placeholder { color: rgba(255,255,255,0.2); font-size: 12px; }
+
+.broker-field.full { grid-column: 1/-1; }
+
+.broker-address {
+  grid-column: 1/-1;
+}
+
+.broker-address label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 6px;
+}
+
+.broker-addr-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.broker-addr-lines input {
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  outline: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  color: var(--white);
+  padding: 4px 2px;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.broker-addr-lines input:focus { border-bottom-color: var(--gold-light); }
+.broker-addr-lines input::placeholder { color: rgba(255,255,255,0.2); font-size: 12px; }
+
+/* ── Doc footer ── */
+/* ── Divider ── */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 28px 0;
+}
+
+/* ── Print ── */
+@media print {
+  body { background: white; padding: 0; }
+  .toolbar { display: none; }
+  #form-doc { box-shadow: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar no-print">
+  <button class="btn-pdf" onclick="savePDF()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+    Save as PDF
+  </button>
+</div>
+
+<div id="form-doc">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="doc-header-left">
+      <h1>Lease / Rent Agreement<br>Registration Form</h1>
+      <p>Property Leasing — Formal Declaration</p>
+    </div>
+
+  </div>
+
+  <div class="doc-body">
+
+    <!-- ── SECTION 1: SENDER ── -->
+    <div class="form-section">
+      <div class="section-head">
+        <div class="section-badge">01</div>
+        <div class="section-label">Sender / Applicant</div>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="from-full">
+        <label>From</label>
+        <input type="text" class="f-input" placeholder="Full name & address">
+      </div>
+
+      <div class="sender-grid">
+        <div class="sender-field">
+          <label>Tel.</label>
+          <input type="tel" class="f-input" placeholder="">
+        </div>
+        <div class="sender-field">
+          <label>Mobile</label>
+          <input type="tel" class="f-input" placeholder="">
+        </div>
+        <div class="sender-field">
+          <label>E-mail</label>
+          <input type="email" class="f-input" placeholder="">
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── SECTION 2: OWNER / FLAT ── -->
+    <div class="form-section">
+      <div class="section-head">
+        <div class="section-badge">02</div>
+        <div class="section-label">Owner & Flat Details</div>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="f-row">
+        <div class="f-label"><span class="ltr">a</span> Name(s) of 1st Landlord / Flat Owner</div>
+        <input type="text" class="f-input" placeholder="">
+      </div>
+      <div class="f-row">
+        <div class="f-label"><span class="ltr">b</span> Name(s) of 2nd Landlord / Flat Owner</div>
+        <input type="text" class="f-input" placeholder="">
+      </div>
+      <div class="f-row">
+        <div class="f-label"><span class="ltr">c</span> POA Name &amp; PAN Card Number</div>
+        <input type="text" class="f-input" placeholder="">
+      </div>
+      <div class="f-row" style="align-items:flex-start">
+        <div class="f-label" style="padding-top:10px"><span class="ltr">d</span> Address of Flat to be Leased</div>
+        <textarea class="f-input" placeholder="Full flat address..."></textarea>
+      </div>
+      <div class="f-row">
+        <div class="f-label"><span class="ltr">e</span> Carpet Area</div>
+        <div class="f-suffix">
+          <input type="text" class="f-input" placeholder="">
+          <span class="f-suffix-text">sq.ft.</span>
+        </div>
+      </div>
+      <div class="f-row">
+        <div class="f-label"><span class="ltr">f</span> Built-up Area</div>
+        <div class="f-suffix">
+          <input type="text" class="f-input" placeholder="">
+          <span class="f-suffix-text">sq.ft.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── SECTION 3: BANK 1 ── -->
+    <div class="form-section">
+      <div class="section-head">
+        <div class="section-badge">03</div>
+        <div class="section-label">Bank Account — Owner 1</div>
+        <div class="section-line"></div>
+      </div>
+      <div class="bank-card">
+        <div class="f-row">
+          <div class="f-label"><span class="ltr">e</span> Owner's A/c Name</div>
+          <input type="text" class="f-input" placeholder="">
+        </div>
+        <div class="f-row">
+          <div class="f-label"><span class="ltr">f</span> Name of the Bank</div>
+          <input type="text" class="f-input" placeholder="">
+        </div>
+        <div class="f-row">
+          <div class="f-label"><span class="ltr">g</span> Account Number</div>
+          <input type="text" class="f-input" placeholder="">
+        </div>
+        <div class="f-row">
+          <div class="f-label"><span class="ltr">h</span> IFSC Code</div>
+          <input type="text" class="f-input" placeholder="">
+        </div>
+        <div class="f-row" style="border-bottom:none">
+          <div class="f-label"><span class="ltr">i</span> Rent Percentage</div>
+          <div class="f-suffix">
+            <input type="text" class="f-input" placeholder="">
+            <span class="f-suffix-text">%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── SECTION 4: BANK 2 ── -->
+    <div class="form-section">
+      <div class="section-head">
+        <div class="section-badge">04</div>
+        <div class="section-label">Bank Account — Owner 2</div>
+        <div class="section-line"></div>
+      </div>
+      <div class="bank-card">
+        <div class="f-row">
+          <div class="f-label"><span class="ltr">e</span> Owner's A/c Name</div>
+          <input type="text" class="f-input" placeholder="">
+        </div>
+        <div class="f-row">
+          <div class="f-label"><span class="ltr">f</span> Name of the Bank</div>
+          <input type="text" class="f-input" placeholder="">
+        </div>
+        <div class="f-row">
+          <div class="f-label"><span class="ltr">g</span> Account Number</div>
+          <input type="text" class="f-input" placeholder="">
+        </div>
+        <div class="f-row">
+          <div class="f-label"><span class="ltr">h</span> IFSC Code</div>
+          <input type="text" class="f-input" placeholder="">
+        </div>
+        <div class="f-row" style="border-bottom:none">
+          <div class="f-label"><span class="ltr">i</span> Rent Percentage</div>
+          <div class="f-suffix">
+            <input type="text" class="f-input" placeholder="">
+            <span class="f-suffix-text">%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── SECTION 5: LEASE & CHARGES ── -->
+    <div class="form-section">
+      <div class="section-head">
+        <div class="section-badge">05</div>
+        <div class="section-label">Lease &amp; Financial Charges</div>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="fin-grid">
+        <div>
+          <div class="f-row">
+            <div class="f-label"><span class="ltr">j</span> Lease Period</div>
+            <div class="f-suffix">
+              <input type="number" class="f-input" placeholder="">
+              <span class="f-suffix-text">Months</span>
+            </div>
+          </div>
+          <div class="f-row">
+            <div class="f-label"><span class="ltr">k</span> Society's Monthly Maintenance</div>
+            <div class="f-suffix">
+              <span class="f-suffix-text">Rs.</span>
+              <input type="number" class="f-input" placeholder="">
+            </div>
+          </div>
+          <div class="f-row">
+            <div class="f-label"><span class="ltr">l</span> Monthly Parking Charges</div>
+            <div class="f-suffix">
+              <span class="f-suffix-text">Rs.</span>
+              <input type="number" class="f-input" placeholder="">
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="f-row">
+            <div class="f-label"><span class="ltr">m</span> Expected Monthly Rent</div>
+            <div class="f-suffix">
+              <span class="f-suffix-text">Rs.</span>
+              <input type="number" class="f-input" placeholder="">
+            </div>
+          </div>
+          <div class="f-row">
+            <div class="f-label"><span class="ltr">n</span> Interest Free Refundable Deposit</div>
+            <div class="f-suffix">
+              <span class="f-suffix-text">Rs.</span>
+              <input type="number" class="f-input" placeholder="">
+            </div>
+          </div>
+          <div class="f-row">
+            <div class="f-label"><span class="ltr">o</span> Brokerage Charges (One Time)</div>
+            <div class="f-suffix">
+              <span class="f-suffix-text">Rs.</span>
+              <input type="number" class="f-input" placeholder="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── SECTION 6: BROKER ── -->
+    <div class="form-section">
+      <div class="section-head">
+        <div class="section-badge">06</div>
+        <div class="section-label">Broker Details</div>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="broker-card">
+        <div class="broker-section-title">p. Broker's Name &amp; Address</div>
+
+        <div class="broker-field">
+          <label>Broker / Firm Name</label>
+          <input type="text" value="(RAKESH PATEL) R.K. ENTERPRISES">
+        </div>
+
+        <div class="broker-field">
+          <label>Contact Number</label>
+          <input type="tel" placeholder="Mobile / Tel.">
+        </div>
+
+        <div class="broker-address">
+          <label>Address</label>
+          <div class="broker-addr-lines">
+            <input type="text" value="ROOM NO 2, DHARMA NIWAS">
+            <input type="text" value="SECTOR 14, DIWALE GAON">
+            <input type="text" value="CBD BELAPUR, NAVI MUMBAI">
+          </div>
+        </div>
+
+        <div class="broker-field">
+          <label>q. Broker's Regn./License Number</label>
+          <input type="text" value="104502541803">
+        </div>
+
+        <div class="broker-field">
+          <label>r. Broker's PAN Card Number</label>
+          <input type="text" value="AMLPP6945L">
+        </div>
+
+        <div class="broker-field">
+          <label>s. Broker Account Number</label>
+          <input type="text" placeholder="">
+        </div>
+
+        <div class="broker-field">
+          <label>t. Broker's Bank Name</label>
+          <input type="text" placeholder="">
+        </div>
+
+        <div class="broker-field">
+          <label>u. Broker IFSC Code</label>
+          <input type="text" placeholder="">
+        </div>
+      </div>
+    </div>
+
+    <!-- Next Page Button -->
+    <div class="form-section" style="text-align: center; margin-top: 40px;">
+      <button class="btn-pdf" onclick="window.location.href='index.html'" style="background: var(--gold); color: var(--navy);">
+        Next Page
+      </button>
+    </div>
+
+  </div><!-- /doc-body -->
+
+</div><!-- /form-doc -->
+
+<script>
+  // Set today's date
+  document.getElementById('todayDate').textContent =
+    new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
+
+  function savePDF() {
+    const doc = document.getElementById('form-doc');
+    const allInputs = doc.querySelectorAll('input, textarea');
+    const saved = [];
+
+    allInputs.forEach(el => {
+      const val = el.value;
+      const placeholder = document.createElement(el.tagName === 'TEXTAREA' ? 'div' : 'span');
+
+      // Copy computed style for accurate rendering
+      const cs = getComputedStyle(el);
+      placeholder.textContent = val || '\u00A0';
+
+      const isInBroker = el.closest('.broker-card');
+      placeholder.style.cssText = `
+        display: inline-block;
+        width: 100%;
+        font-family: 'DM Sans', sans-serif;
+        font-size: ${cs.fontSize};
+        color: ${isInBroker ? '#ffffff' : '#0d1b2a'};
+        padding: 5px 2px;
+        border-bottom: 1px solid ${isInBroker ? 'rgba(255,255,255,0.2)' : '#c8bfaf'};
+        white-space: pre-wrap;
+      `;
+
+      saved.push({ el, parent: el.parentNode, next: el.nextSibling });
+      el.parentNode.insertBefore(placeholder, el);
+      el.style.display = 'none';
+    });
+
+    const btn = document.querySelector('.btn-pdf');
+    btn.textContent = 'Generating…';
+    btn.disabled = true;
+
+    const opt = {
+      margin:      [0, 0, 0, 0],
+      filename:    'Lease_Form_RK.pdf',
+      image:       { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false },
+      jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(doc).save().then(() => {
+      // Restore
+      saved.forEach(({ el, parent, next }) => {
+        const placeholder = el.previousSibling;
+        if (placeholder && placeholder !== el) parent.removeChild(placeholder);
+        el.style.display = '';
+      });
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Save as PDF`;
+      btn.disabled = false;
+    });
+  }
+</script>
+</body>
+</html>
