@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>पोलीस स्टेशन नोंदणी फॉर्म – A5</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans Devanagari', 'Mangal', Arial, sans-serif;
+    background: #ddd9d2;
+    padding: 16px;
+    color: #1a1a1a;
+  }
+
+  /* Screen: show A5 card centered */
+  .page {
+    background: #fff;
+    width: 148mm;
+    min-height: 210mm;
+    margin: 0 auto;
+    padding: 8mm 9mm;
+    border: 1.5px solid #444;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    font-size: 9px;
+  }
+
+  /* ---- PRINT: exact A5 ---- */
+  @page {
+    size: A5 portrait;
+    margin: 8mm 9mm;
+  }
+  @media print {
+    html, body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
+    .page {
+      width: 100% !important;
+      min-height: unset !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+    .btn-row { display: none !important; }
+    .inline-input,
+    .input-cell textarea,
+    .input-cell input[type=text],
+    .sig-item input,
+    .sig-right input {
+      background: transparent !important;
+      border-color: #888 !important;
+    }
+  }
+
+  /* ===== COMPONENTS ===== */
+
+  .top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 5px;
+    gap: 6px;
+  }
+
+  .reg-block .line {
+    display: flex; align-items: center; gap: 2px; margin-bottom: 3px; font-size: 8.5px;
+  }
+  .reg-block label { white-space: nowrap; font-size: 8.5px; }
+
+  .inline-input {
+    border: none;
+    border-bottom: 1px solid #333;
+    background: #fffbe6;
+    font-size: 8.5px;
+    font-family: inherit;
+    text-align: center;
+    outline: none;
+    padding: 0 2px;
+    color: #1a1a1a;
+  }
+  .inline-input:focus { border-bottom-color: #0057a8; background: #e8f0fe; }
+  .inline-input.w28 { width: 28px; }
+  .inline-input.w40 { width: 40px; }
+
+  /* Photos */
+  .photo-section { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+  .photo-label { font-size: 7.5px; color: #444; text-align: right; }
+  .photo-boxes { display: flex; gap: 5px; }
+  .photo-box {
+    width: 44px; height: 54px;
+    border: 1px solid #555;
+    background: #f5f5f5;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: 7px; color: #777;
+    cursor: pointer; position: relative; overflow: hidden; text-align: center; gap: 2px;
+  }
+  .photo-box:hover { background: #eef4ff; }
+  .photo-box input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .photo-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+  .photo-box .icon { font-size: 14px; line-height: 1; }
+
+  /* Address */
+  .address-block { font-size: 8.5px; margin-bottom: 5px; line-height: 1.6; }
+  .address-indent { margin-left: 12px; }
+
+  /* Subject */
+  .subject-row {
+    display: flex; gap: 4px; margin-bottom: 5px;
+    font-size: 8.5px; border-bottom: 1px solid #bbb; padding-bottom: 4px;
+  }
+  .subject-label { font-weight: 700; white-space: nowrap; }
+  .subject-text { line-height: 1.5; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 8px; }
+  table td { border: 1px solid #444; padding: 3px 4px; vertical-align: top; }
+  .num-cell { width: 5%; font-weight: 700; border-right: none; white-space: nowrap; background: #f5f2e8; font-size: 8px; }
+  .label-cell { width: 38%; background: #f5f2e8; line-height: 1.45; font-size: 7.8px; border-left: none; }
+  .input-cell { width: 57%; background: #fff; }
+
+  .input-cell textarea,
+  .input-cell input[type=text] {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 8px;
+    resize: none;
+    outline: none;
+    line-height: 1.5;
+    color: #1a1a1a;
+    padding: 0;
+    overflow: hidden;
+  }
+  .input-cell textarea { min-height: 28px; }
+  .input-cell textarea:focus,
+  .input-cell input[type=text]:focus { background: #fffbe6; border-radius: 2px; }
+
+  /* Footer */
+  .footer-text { font-size: 8px; margin-top: 5px; line-height: 1.55; }
+
+  .sig-section { display: flex; justify-content: space-between; margin-top: 8px; font-size: 8px; }
+  .sig-left { display: flex; flex-direction: column; gap: 7px; }
+  .sig-item { display: flex; align-items: flex-end; gap: 4px; }
+  .sig-item span { white-space: nowrap; }
+  .sig-item input {
+    border: none; border-bottom: 1px solid #333;
+    background: #fffbe6; width: 100px; outline: none;
+    font-size: 8px; font-family: inherit; padding: 1px 2px;
+  }
+  .sig-item input:focus { background: #e8f0fe; }
+
+  .sig-right { text-align: right; line-height: 1.8; font-size: 8px; }
+  .sig-right input {
+    border: none; border-bottom: 1px solid #333;
+    background: #fffbe6; width: 100px; outline: none;
+    font-size: 8px; font-family: inherit; text-align: center;
+    padding: 1px 2px; display: block; margin-top: 4px;
+  }
+  .sig-right input:focus { background: #e8f0fe; }
+
+  .bottom-note {
+    text-align: center; margin-top: 8px; font-size: 8px;
+    font-weight: 700; border-top: 1px solid #444; padding-top: 5px;
+  }
+
+  /* Buttons (screen only) */
+  .btn-row { display: flex; justify-content: center; gap: 10px; margin-top: 12px; }
+  .btn {
+    padding: 6px 20px; font-size: 12px; font-family: inherit;
+    cursor: pointer; border-radius: 4px; font-weight: 600;
+    border: 1.5px solid #333; transition: all 0.18s;
+  }
+  .btn-print { background: #1a1a1a; color: #fff; }
+  .btn-print:hover { background: #0057a8; border-color: #0057a8; }
+  .btn-reset { background: #fff; color: #1a1a1a; }
+  .btn-reset:hover { background: #fff0f0; border-color: #c00; color: #c00; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- TOP HEADER -->
+  <div class="top-header">
+    <div class="reg-block">
+      <div class="line">
+        <label>रजिस्टर नं.</label>
+        <input class="inline-input w40" type="text" placeholder="______">
+        &nbsp;/&nbsp;
+        <input class="inline-input w28" type="text" value="20">
+      </div>
+      <div class="line" style="margin-top:4px">
+        <label>तारीख</label>
+        <input class="inline-input w28" type="text" placeholder="">
+        &nbsp;/&nbsp;
+        <input class="inline-input w28" type="text" placeholder="">
+        &nbsp;/&nbsp;
+        <input class="inline-input w28" type="text" placeholder="">
+      </div>
+    </div>
+
+    <div class="photo-section">
+      <div class="photo-label">खोली मालकाचा फोटो &nbsp;/&nbsp; माईकरचा फोटो</div>
+      <div class="photo-boxes">
+        <div class="photo-box" id="photoBox1">
+          <span class="icon"></span>
+          <span>मालक</span>
+          <img id="photoPreview1" alt="मालक फोटो">
+          <input type="file" accept="image/*" onchange="previewPhoto(this,'photoPreview1','photoBox1')">
+        </div>
+        <div class="photo-box" id="photoBox2">
+          <span class="icon"></span>
+          <span>भाडेकरू</span>
+          <img id="photoPreview2" alt="भाडेकरू फोटो">
+          <input type="file" accept="image/*" onchange="previewPhoto(this,'photoPreview2','photoBox2')">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADDRESS -->
+ <div class="address-block">
+
+  <div>
+    <span contenteditable="true">प्रति,</span>
+  </div>
+
+  <div class="address-indent" contenteditable="true">
+    मा. वरिष्ठ पोलीस निरीक्षक साहेब,<br>
+    सी.बी.डी. बेलापूर, पोलीस स्टेशन,
+  </div>
+
+</div>
+
+  <!-- SUBJECT -->
+  <div class="subject-row">
+    <span class="subject-label">विषय :</span>
+    <span class="subject-text">सदनिका / दुकान / ऑफिस खरेदी–विक्री करणे, भाड्याने देण्याबाबतचा दाखला मिळणेबाबत ...</span>
+  </div>
+
+  <!-- MAIN TABLE -->
+  <table>
+    <tr>
+      <td class="num-cell">१.</td>
+      <td class="label-cell">घर मालकाचे / बिल्डरचे पूर्ण नाव पत्ता व फोन नं.</td>
+      <td class="input-cell">
+        <textarea>सौ. दीपाली आनंदा निकम
+पत्ता: रूम नं २०७, स्वप्नपूर्ती बिल्डिंग नं. २३, महाराष्ट्र नगर, मानखुर्द इस्ट., मुंबई – ४०००८८.
+मो.नं. ९३०२६४४६२३</textarea>
+      </td>
+    </tr>
+    <tr>
+      <td class="num-cell">२.</td>
+      <td class="label-cell">भाड्याने / खरेदी विक्री करावयाचे जागेचा पूर्ण पत्ता</td>
+      <td class="input-cell">
+        <textarea>फ्लॅट नं–४०१, शिव प्रेरणा बिल्डिंग, प्लॉट नं. बी १०४, सेक्टर – २९, आग्रोळी गांव, सी.बी.डी. बेलापूर नवी मुंबई–४००६१४.</textarea>
+      </td>
+    </tr>
+    <tr>
+      <td class="num-cell">३.</td>
+      <td class="label-cell">भाडेकरुचा/ खरेदीदाराचे नाव व पत्ता पूर्वी राहत असलेला पत्ता (भाडेकरुचे ओळखपत्र, रेशनकार्ड, इलेक्शन कार्ड ची छायांकित प्रत सोबत जोडावी.)</td>
+      <td class="input-cell">
+        <textarea>सौ. चैत्राली अजित गायकवाड
+पत्ता: दूरदर्शन टॉवर शेजारी, सह्याद्री नगर सदावली, रत्नागिरी, महाराष्ट्र ४१५८०४
+मो.नं. ८०८३८०४९२१</textarea>
+      </td>
+    </tr>
+    <tr>
+      <td class="num-cell">४.</td>
+      <td class="label-cell">भाडेकरुचा/ खरेदीदाराचा मूळ गावचा पत्ता व फोन नं.</td>
+      <td class="input-cell">
+        <textarea>दूरदर्शन टॉवर शेजारी, सह्याद्री नगर सदावली, रत्नागिरी, महाराष्ट्र ४१५८०४</textarea>
+      </td>
+    </tr>
+    <tr>
+      <td class="num-cell">५.</td>
+      <td class="label-cell">भाडेकरुचा/ खरेदीदारचे नातेवाईकांचे नाव व पत्ता</td>
+      <td class="input-cell"><textarea placeholder=""></textarea></td>
+    </tr>
+    <tr>
+      <td class="num-cell">६.</td>
+      <td class="label-cell">भाडेकरुचा/ खरीदीदार करीत असलेली नोकरी व्यवसायाचे ठिकाण व फोन नं.</td>
+      <td class="input-cell"><textarea placeholder=""></textarea></td>
+    </tr>
+    <tr>
+      <td class="num-cell">७.</td>
+      <td class="label-cell">भाडेकरुचा/खरीदीदार कोणाच्या ओळखीने आला त्यांचे नाव, पत्ता व फोन नं.</td>
+      <td class="input-cell"><textarea placeholder=""></textarea></td>
+    </tr>
+    <tr>
+      <td class="num-cell">८.</td>
+      <td class="label-cell">इस्टेट एजंटचे नाव / एजन्सीचे नाव ऑफिसचे नाव फोन नं.</td>
+      <td class="input-cell"><textarea placeholder=""></textarea></td>
+    </tr>
+    <tr>
+      <td class="num-cell">९.</td>
+      <td class="label-cell">अॅग्रीमेंट केला आहे का ? कालावधी तपशील/खोली मध्ये भाडोत्रीच्या कुटुंबातील एकूण व्यक्ती</td>
+      <td class="input-cell">
+        <textarea>०१/०५/२०२६ ते ३१/०३/२०२७
+(११ महिने)</textarea>
+      </td>
+    </tr>
+  </table>
+
+  <!-- FOOTER TEXT -->
+  <div class="footer-text">
+    वरील दिलेली माहिती खरी असून भाडेकरुला/खरीदीदाराला सदनिका/दुकान/ऑफिस खरेदी-विक्री करण्यास, भाड्याने देण्याबाबतचा दाखला मिळणेबाबत...
+  </div>
+
+  <!-- SIGNATURES -->
+  <div class="sig-section">
+    <div class="sig-left">
+      <div class="sig-item">
+        <span>भाडेकरुची सही</span>
+        <input type="text" placeholder="________________">
+      </div>
+      <div class="sig-item">
+        <span>साक्षीदाराची सही</span>
+        <input type="text" placeholder="________________">
+      </div>
+    </div>
+    <div class="sig-right">
+      आपला विश्वासू,
+      <input type="text" placeholder="">
+    </div>
+  </div>
+
+  <!-- BOTTOM NOTE -->
+  <div class="bottom-note">
+    खोली मालकाची सही / अथवा मालकाचे संमती पत्र सोबत जोडावी.
+  </div>
+
+</div>
+
+<!-- Buttons outside page div so they don't print -->
+<div class="btn-row">
+  <button class="btn btn-print" onclick="window.print()">🖨️ प्रिंट करा (A5)</button>
+  <button class="btn btn-reset" onclick="resetForm()">↺ फॉर्म रिसेट करा</button>
+  <a class="btn btn-home" href="index.html">🏠 होम</a>
+</div>
+
+<script>
+  function previewPhoto(input, previewId, boxId) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = document.getElementById(previewId);
+      const box = document.getElementById(boxId);
+      img.src = e.target.result;
+      img.style.display = 'block';
+      box.querySelector('.icon').style.display = 'none';
+      const spans = box.querySelectorAll('span:not(.icon)');
+      spans.forEach(s => s.style.display = 'none');
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  function resetForm() {
+    if (!confirm('फॉर्म रिसेट करायचा आहे का? सर्व माहिती मिटेल.')) return;
+    document.querySelectorAll('.input-cell textarea, .input-cell input[type=text]').forEach(el => el.value = '');
+    document.querySelectorAll('.sig-item input, .sig-right input').forEach(el => el.value = '');
+    document.querySelectorAll('.inline-input').forEach(el => el.value = '');
+    ['photoPreview1','photoPreview2'].forEach(id => {
+      const img = document.getElementById(id);
+      if (img) img.style.display = 'none';
+    });
+    document.querySelectorAll('.photo-box .icon').forEach(el => el.style.display = '');
+    document.querySelectorAll('.photo-box span:not(.icon)').forEach(el => el.style.display = '');
+  }
+
+  // Auto-expand textareas
+  document.querySelectorAll('.input-cell textarea').forEach(function(ta) {
+    ta.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = this.scrollHeight + 'px';
+    });
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+  });
+</script>
+
+</body>
+</html>

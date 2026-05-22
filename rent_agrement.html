@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>भाडे करार संपादक | Rent Agreement Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Marathi:ital@0;1&family=Noto+Serif+Devanagari:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #fdf8f0;
+  --ink: #1a1208;
+  --ink-light: #3d2e14;
+  --gold: #b8860b;
+  --gold-light: #d4a820;
+  --red-accent: #8b1a1a;
+  --blue-gov: #1a2e6e;
+  --blue-light: #2545a8;
+  --field-bg: #fffaed;
+  --field-border: #c8960c;
+  --shadow: rgba(26,18,8,0.18);
+  --toolbar-h: 64px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1e1810;
+  background-image: repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(184,134,11,0.025) 40px,rgba(184,134,11,0.025) 80px);
+  font-family: 'Noto Serif Devanagari','Tiro Devanagari Marathi',serif;
+  padding-top: calc(var(--toolbar-h) + 28px);
+  padding-bottom: 80px;
+  min-height: 100vh;
+}
+
+/* ── TOOLBAR ── */
+#toolbar {
+  position: fixed; top:0; left:0; right:0; z-index:1000;
+  height: var(--toolbar-h);
+  background: linear-gradient(135deg,#0a1640,#152660,#0a1640);
+  border-bottom: 2px solid var(--gold);
+  display: flex; align-items: center;
+  padding: 0 18px; gap: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+.toolbar-brand { display:flex; flex-direction:column; margin-right:6px; }
+.toolbar-brand .brand-title { font-family:'Noto Serif Devanagari',serif; font-size:14px; font-weight:700; color:var(--gold-light); line-height:1.2; }
+.toolbar-brand .brand-sub   { font-family:'Playfair Display',serif; font-size:10px; color:rgba(212,168,32,0.6); letter-spacing:1.5px; text-transform:uppercase; }
+.toolbar-divider { width:1px; height:32px; background:rgba(184,134,11,0.3); flex-shrink:0; }
+
+.btn {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:7px 12px; border:none; border-radius:6px;
+  font-size:12px; font-weight:700; cursor:pointer;
+  transition:all 0.18s; white-space:nowrap; font-family:inherit;
+}
+.btn:hover  { transform:translateY(-1px); filter:brightness(1.15); }
+.btn:active { transform:translateY(0);    filter:brightness(0.95); }
+.btn-lang  { background:linear-gradient(135deg,#1e3a8a,#2563eb); color:#fff; border:1px solid rgba(96,165,250,0.35); }
+.btn-add   { background:linear-gradient(135deg,#14532d,#166534); color:#fff; border:1px solid rgba(134,239,172,0.25); font-size:11px; padding:6px 10px; }
+.btn-reset { background:linear-gradient(135deg,#374151,#4b5563); color:#e5e7eb; border:1px solid rgba(156,163,175,0.25); }
+.btn-pdf   { background:linear-gradient(135deg,#7f1d1d,#991b1b); color:#fff; border:1px solid rgba(252,165,165,0.25); }
+.add-group { display:flex; gap:6px; align-items:center; }
+
+#lang-indicator {
+  margin-left:auto;
+  background:rgba(184,134,11,0.12); border:1px solid rgba(184,134,11,0.35);
+  color:var(--gold-light); padding:3px 10px; border-radius:20px;
+  font-size:11px; font-weight:700; letter-spacing:0.8px;
+}
+
+/* ── PAGES ── */
+#pages-container { max-width:900px; margin:0 auto; padding:0 16px; }
+
+/* Each language set */
+.lang-block { display:none; }
+.lang-block.active { display:block; }
+
+.page {
+  width:210mm; min-height:297mm; max-width:100%;
+  background:var(--cream);
+  background-image:linear-gradient(rgba(245,234,216,0.25) 1px,transparent 1px);
+  background-size:100% 2.08em;
+  margin:0 auto 40px;
+  box-shadow:0 4px 8px rgba(0,0,0,0.1),0 12px 32px rgba(0,0,0,0.25),0 28px 60px var(--shadow);
+  border:1px solid rgba(184,134,11,0.18);
+  padding:25mm 24mm 22mm;
+  position:relative;
+  font-size:14px; line-height:2.05; color:var(--ink);
+}
+.page-label {
+  position:absolute; top:-14px; left:50%; transform:translateX(-50%);
+  background:var(--blue-gov); color:var(--gold-light);
+  font-size:11px; font-weight:700; padding:3px 16px; border-radius:12px;
+  letter-spacing:1px; font-family:'Lato',sans-serif;
+  border:1px solid var(--gold); white-space:nowrap;
+}
+
+/* ── EDITABLE PARAS & CLAUSES ── */
+.editable-para {
+  text-align:justify; margin-bottom:18px; text-indent:30px;
+  position:relative; padding-right:38px; min-height:26px;
+  border-radius:4px; transition:background 0.15s,outline 0.15s;
+}
+.editable-para:hover { background:rgba(184,134,11,0.055); outline:1px dashed rgba(184,134,11,0.38); }
+
+.clause { display:flex; gap:12px; margin-bottom:20px; align-items:flex-start; }
+.clause-num { font-weight:700; color:var(--blue-gov); min-width:36px; padding-top:2px; font-size:15px; flex-shrink:0; }
+.clause-body {
+  flex:1; text-align:justify; position:relative;
+  padding-right:38px; border-radius:4px; transition:background 0.15s,outline 0.15s;
+}
+.clause-body:hover { background:rgba(184,134,11,0.055); outline:1px dashed rgba(184,134,11,0.38); }
+
+/* ── DELETE BTN ── */
+.delete-btn {
+  position:absolute; right:6px; top:3px;
+  color:var(--red-accent); font-size:14px; font-weight:900;
+  cursor:pointer; opacity:0;
+  width:22px; height:22px; display:flex; align-items:center; justify-content:center;
+  border-radius:50%; background:rgba(139,26,26,0.1);
+  transition:opacity 0.15s,background 0.15s;
+  border:none; line-height:1;
+}
+.editable-para:hover .delete-btn,
+.clause-body:hover .delete-btn { opacity:1; }
+.delete-btn:hover { background:rgba(139,26,26,0.22)!important; opacity:1!important; }
+
+/* ── EDITABLE FIELDS ── */
+.ef {
+  background:var(--field-bg); border:none;
+  border-bottom:2px solid var(--field-border);
+  font-weight:700; color:var(--ink-light);
+  padding:1px 5px; border-radius:3px 3px 0 0;
+  cursor:text; display:inline-block; min-width:38px;
+  transition:all 0.18s; font-family:inherit; font-size:inherit;
+}
+.ef:focus { outline:none; background:#fff9e8; border-bottom-color:var(--blue-light); box-shadow:0 2px 8px rgba(37,69,168,0.14); }
+.ef:hover { background:#fff9e8; }
+
+/* ── SIGNATURE ── */
+.sig-row { margin-top:60px; display:flex; justify-content:space-between; padding-top:14px; border-top:1px solid rgba(184,134,11,0.28); }
+.sig-item { text-align:center; font-weight:600; font-size:13px; color:var(--ink-light); }
+.sig-line { display:block; width:150px; border-bottom:1.5px solid var(--ink); margin:6px auto 0; }
+
+/* ── STAMP ── */
+.stamp-box {
+  width:96px; height:96px; border:2px dashed var(--red-accent); border-radius:4px;
+  margin:28px auto; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center;
+  font-size:10px; color:var(--red-accent); background:rgba(139,26,26,0.04);
+  font-family:'Lato',sans-serif;
+}
+
+/* ── RECEIPT ── */
+.receipt-header { text-align:center; margin-bottom:28px; }
+.receipt-title-main {
+  font-family:'Noto Serif Devanagari',serif; font-size:26px; font-weight:700;
+  color:var(--blue-gov); border-bottom:3px double var(--gold);
+  display:inline-block; padding:0 28px 8px;
+}
+.receipt-title-sub {
+  font-family:'Playfair Display',serif; font-size:12px; color:var(--gold);
+  letter-spacing:4px; text-transform:uppercase; margin-top:5px;
+}
+.amount-box {
+  text-align:center; margin:18px auto; padding:14px 24px;
+  background:linear-gradient(135deg,rgba(26,46,110,0.05),rgba(184,134,11,0.08));
+  border:1px solid var(--gold); border-radius:8px;
+  display:inline-block; min-width:200px;
+}
+.amount-label { font-size:10.5px; color:rgba(26,18,8,0.5); text-transform:uppercase; letter-spacing:1px; font-family:'Lato',sans-serif; }
+.amount-value { font-size:24px; font-weight:700; color:var(--blue-gov); }
+
+/* ── WITNESS ── */
+.witness-section {
+  margin-top:32px; padding:14px 18px;
+  border:1px solid rgba(184,134,11,0.2); border-radius:6px;
+  background:rgba(245,234,216,0.28);
+}
+.witness-title { font-weight:700; color:var(--blue-gov); margin-bottom:12px; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px; }
+.witness-line { display:flex; align-items:baseline; gap:10px; margin-bottom:18px; font-size:13.5px; }
+.witness-num { font-weight:700; color:var(--blue-gov); min-width:22px; }
+.witness-underscore { flex:1; border-bottom:1.5px solid var(--ink); height:20px; }
+
+/* ── PARTY CARD ── */
+.party-card {
+  border:1px solid rgba(184,134,11,0.24); border-radius:8px;
+  padding:18px 22px; background:rgba(245,234,216,0.22); margin-bottom:36px;
+}
+.party-label { font-weight:700; color:var(--blue-gov); margin-bottom:10px; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px; }
+.party-name  { font-size:15px; margin-bottom:4px; }
+
+/* ── CONTEXT MENU ── */
+#ctx-menu {
+  display:none; position:fixed; background:#fff;
+  border:1px solid #e5e7eb; border-radius:8px;
+  box-shadow:0 8px 28px rgba(0,0,0,0.18);
+  z-index:5000; min-width:180px; padding:6px 0;
+  font-family:'Lato',sans-serif; font-size:13px;
+}
+#ctx-menu button { display:flex; align-items:center; gap:8px; width:100%; padding:9px 16px; background:none; border:none; cursor:pointer; color:#1f2937; font-size:13px; text-align:left; transition:background 0.12s; }
+#ctx-menu button:hover { background:#f3f4f6; }
+#ctx-menu button.danger { color:#dc2626; }
+#ctx-menu button.danger:hover { background:#fef2f2; }
+#ctx-menu hr { border:none; border-top:1px solid #e5e7eb; margin:4px 0; }
+
+/* ── EDIT OVERLAY ── */
+#edit-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:4000; align-items:center; justify-content:center; }
+#edit-overlay.open { display:flex; }
+#edit-box { background:#fff; border-radius:12px; padding:28px; width:90%; max-width:560px; box-shadow:0 20px 60px rgba(0,0,0,0.35); border-top:4px solid var(--blue-gov); }
+#edit-box h3 { font-family:'Playfair Display',serif; font-size:19px; color:var(--blue-gov); margin-bottom:6px; }
+#edit-box p  { color:#6b7280; font-size:13px; margin-bottom:16px; font-family:'Lato',sans-serif; }
+#edit-textarea { width:100%; min-height:110px; padding:12px; border:1.5px solid #d1d5db; border-radius:8px; font-size:14px; font-family:'Noto Serif Devanagari',serif; resize:vertical; margin-bottom:16px; line-height:1.8; }
+#edit-textarea:focus { outline:none; border-color:var(--blue-light); box-shadow:0 0 0 3px rgba(37,69,168,0.1); }
+.edit-actions { display:flex; gap:10px; justify-content:flex-end; }
+.edit-btn-cancel { background:#f3f4f6; color:#374151; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600; font-family:'Lato',sans-serif; }
+.edit-btn-save   { background:var(--blue-gov); color:#fff; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600; font-family:'Lato',sans-serif; }
+.edit-btn-cancel:hover { background:#e5e7eb; }
+.edit-btn-save:hover   { background:var(--blue-light); }
+
+/* ── ADD MODAL ── */
+#add-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:3500; align-items:center; justify-content:center; }
+#add-modal-overlay.open { display:flex; }
+#add-modal-box { background:#fff; border-radius:12px; padding:30px; max-width:520px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.4); border-top:4px solid var(--blue-gov); }
+#add-modal-box h2 { font-family:'Playfair Display',serif; font-size:21px; color:var(--blue-gov); margin-bottom:6px; }
+#add-modal-box p  { color:#6b7280; font-size:13px; margin-bottom:18px; font-family:'Lato',sans-serif; line-height:1.6; }
+#modal-type-row { display:flex; gap:10px; margin-bottom:14px; }
+.type-btn { flex:1; padding:9px 6px; border:2px solid #e5e7eb; border-radius:8px; background:#f9fafb; cursor:pointer; font-size:12px; font-weight:700; color:#374151; font-family:'Lato',sans-serif; transition:all 0.15s; text-align:center; }
+.type-btn.active { border-color:var(--blue-gov); background:rgba(26,46,110,0.07); color:var(--blue-gov); }
+#modal-num-row { display:none; align-items:center; gap:10px; margin-bottom:12px; font-size:13px; font-family:'Lato',sans-serif; color:#374151; }
+#modal-clause-num { width:80px; padding:8px 10px; border:1.5px solid #d1d5db; border-radius:6px; font-size:14px; font-family:inherit; }
+.modal-page-lbl { font-size:12px; font-family:'Lato',sans-serif; color:#374151; font-weight:700; display:block; margin-bottom:5px; }
+#modal-page-select { padding:8px 10px; border:1.5px solid #d1d5db; border-radius:6px; font-size:13px; font-family:'Lato',sans-serif; color:#374151; background:#fff; margin-bottom:12px; width:100%; }
+#add-modal-textarea { width:100%; min-height:100px; padding:12px; border:1.5px solid #d1d5db; border-radius:8px; font-size:14px; font-family:'Noto Serif Devanagari',serif; resize:vertical; margin-bottom:16px; line-height:1.8; }
+#add-modal-textarea:focus { outline:none; border-color:var(--blue-light); }
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; }
+.modal-btn-cancel { background:#f3f4f6; color:#374151; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600; font-family:'Lato',sans-serif; }
+.modal-btn-add    { background:var(--blue-gov); color:#fff; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600; font-family:'Lato',sans-serif; }
+.modal-btn-cancel:hover { background:#e5e7eb; }
+.modal-btn-add:hover    { background:var(--blue-light); }
+
+/* ── TOAST ── */
+#toast { display:none; position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#166534; color:#fff; padding:12px 26px; border-radius:10px; font-size:14px; font-weight:600; z-index:6000; box-shadow:0 8px 24px rgba(0,0,0,0.3); font-family:'Lato',sans-serif; white-space:nowrap; }
+
+/* ── PRINT ── */
+@media print {
+  body { background:white!important; padding:0!important; margin:0!important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  #toolbar,#ctx-menu,#edit-overlay,#add-modal-overlay,#toast,.page-label,.delete-btn { display:none!important; }
+  #pages-container { padding:0!important; max-width:none!important; }
+  .lang-block { display:none!important; }
+  .lang-block.active { display:block!important; }
+  .page { margin:0!important; box-shadow:none!important; border:none!important; width:210mm!important; max-width:210mm!important; min-height:297mm!important; padding:20mm 22mm 20mm!important; page-break-after:always; background:white!important; background-image:none!important; }
+  .page:last-child { page-break-after:avoid; }
+  @page { size:A4 portrait; margin:0!important; }
+  .ef { border-bottom:none!important; background:transparent!important; padding:0 2px!important; font-weight:700; }
+  .editable-para:hover,.clause-body:hover { background:none!important; outline:none!important; }
+}
+@media (max-width:640px) {
+  .page { padding:14mm 10mm 12mm; font-size:13px; }
+  #toolbar { height:auto; flex-wrap:wrap; padding:8px; }
+  .add-group { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <div class="toolbar-brand">
+    <span class="brand-title" id="brand-title">भाडे करार संपादक</span>
+    <span class="brand-sub"  id="brand-sub">RENT AGREEMENT EDITOR</span>
+  </div>
+  <div class="toolbar-divider"></div>
+  <button class="btn btn-lang" onclick="toggleLanguage()" id="langBtn">🇬🇧 English</button>
+  <div class="toolbar-divider"></div>
+  <div class="add-group">
+    <button class="btn btn-add" onclick="openAddModal(1)" id="add1-btn">＋ पान १</button>
+    <button class="btn btn-add" onclick="openAddModal(2)" id="add2-btn">＋ पान २</button>
+    <button class="btn btn-add" onclick="openAddModal(3)" id="add3-btn">＋ पान ३</button>
+    <button class="btn btn-add" onclick="openAddModal(4)" id="add4-btn">＋ पान ४</button>
+    <button class="btn btn-add" onclick="quickAddParagraph()" id="quick-add-btn">＋ नवा परिच्छेद</button>
+  </div>
+  <div class="toolbar-divider"></div>
+  <button class="btn btn-pdf"   onclick="printDoc()">🖨 PDF</button>
+  <button class="btn btn-reset" onclick="resetAll()">↺ Reset</button>
+  <a class="btn btn-home" href="index.html">🏠 Home</a>
+  <span id="lang-indicator">मराठी</span>
+</div>
+
+<!-- CONTEXT MENU -->
+<div id="ctx-menu">
+  <button onclick="ctxEdit()">✏️ <span id="ctx-edit-lbl">संपादित करा</span></button>
+  <hr>
+  <button class="danger" onclick="ctxDelete()">🗑 <span id="ctx-del-lbl">हटवा</span></button>
+</div>
+
+<!-- EDIT OVERLAY -->
+<div id="edit-overlay">
+  <div id="edit-box">
+    <h3 id="edit-title">परिच्छेद संपादित करा</h3>
+    <p  id="edit-desc">मजकूर बदला आणि जतन करा.</p>
+    <textarea id="edit-textarea"></textarea>
+    <div class="edit-actions">
+      <button class="edit-btn-cancel" onclick="closeEditOverlay()" id="edit-cancel-btn">रद्द करा</button>
+      <button class="edit-btn-save"   onclick="saveEdit()"         id="edit-save-btn">जतन करा</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div id="add-modal-overlay">
+  <div id="add-modal-box">
+    <h2 id="modal-title">नवीन परिच्छेद जोडा</h2>
+    <p  id="modal-desc">पान निवडा, प्रकार निवडा आणि मजकूर लिहा.</p>
+    <label class="modal-page-lbl" id="modal-page-lbl">पान निवडा:</label>
+    <select id="modal-page-select">
+      <option value="1">पान १</option>
+      <option value="2">पान २</option>
+      <option value="3">पान ३</option>
+      <option value="4">पान ४</option>
+    </select>
+    <div id="modal-type-row">
+      <button class="type-btn active" id="type-para-btn"   onclick="selectType('para')">¶ परिच्छेद</button>
+      <button class="type-btn"        id="type-clause-btn" onclick="selectType('clause')">№ कलम</button>
+    </div>
+    <div id="modal-num-row">
+      <label for="modal-clause-num" id="modal-num-lbl">कलम क्र.:</label>
+      <input id="modal-clause-num" type="text" placeholder="११)">
+    </div>
+    <textarea id="add-modal-textarea" placeholder="येथे लिहा..."></textarea>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeModal()"  id="modal-cancel-btn">रद्द करा</button>
+      <button class="modal-btn-add"    onclick="confirmAdd()"  id="modal-add-btn">जोडा</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGES CONTAINER
+═══════════════════════════════════════════════════════════ -->
+<div id="pages-container">
+
+<!-- ════════════════════════════════
+     MARATHI VERSION
+════════════════════════════════ -->
+<div class="lang-block active" id="block-mr">
+
+  <!-- MARATHI PAGE 1 -->
+  <div class="page" id="mr-page1">
+    <div class="page-label">पान १ / Page 1</div>
+
+    <p class="editable-para">
+      सदरहू करारनामा हा आज दिनांक: <span class="ef" contenteditable="true">०४/०५/२०२६</span> रोजी दोन्ही वरील नामे पक्षियामध्ये करण्यात आलेला आहे.
+      <button class="delete-btn" title="हटवा">✕</button>
+    </p>
+
+    <p class="editable-para">
+      ज्याअर्थी प्रथम पक्षिय यांच्या मालकीची:— <span class="ef" contenteditable="true">फ्लॅट नं-४०१</span>, <span class="ef" contenteditable="true">शिव प्रेरणा बिल्डिंग</span>, प्लॉट नं. बी <span class="ef" contenteditable="true">१०८</span>, सेक्टर - <span class="ef" contenteditable="true">२९</span>, <span class="ef" contenteditable="true">आग्रोळी गांव</span>, सी.बी.डी. बेलापुर नवी मुंबई-<span class="ef" contenteditable="true">४००६१४</span>, या ठिकाणी असलेल्या फ्लॅट/रूमचे कायदेशीर मालक असून, सदरहू फ्लॅट/रूम ही प्रथम पक्षिय हे आज दिनांक <span class="ef" contenteditable="true">०४/०५/२०२६</span> पासून द्वितीय पक्षिय यांना <span class="ef" contenteditable="true">११ (अकरा)</span> महिनाच्या मुदतीकरीता वापरण्यासाठी भाडे तत्वावर देण्याचे मान्य केलेले आहे. त्याबाबत दोन्ही पक्षियामध्ये मान्य झालेल्या अटी व शर्ती खालीलप्रमाणे:—
+      <button class="delete-btn" title="हटवा">✕</button>
+    </p>
+
+    <div class="clause">
+      <span class="clause-num">१)</span>
+      <div class="clause-body">
+        प्रथम पक्षिय यांनी उपरोक्त पत्त्यावरील फ्लॅट/रूम हा द्वितीय पक्षिय यांस दिनांक <span class="ef" contenteditable="true">०१/०५/२०२६</span> रोजी पासून दिनांक <span class="ef" contenteditable="true">३१/०३/२०२७</span> रोजी पर्यंत या <span class="ef" contenteditable="true">११ (अकरा)</span> महिनाचा मुदतीवर वापरावयास दिलेले आहे.
+        <button class="delete-btn" title="हटवा">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">२)</span>
+      <div class="clause-body">
+        त्याचप्रमाणे सदरहू करारान्वये दोन्ही पक्षियांमध्ये सदर फ्लॅट/रूम दरमहाचे भाडे रूपये <span class="ef" contenteditable="true">१२,०००/-</span> (अक्षरी <span class="ef" contenteditable="true">बारा हजार मात्र</span>) ठरविलेले असून, द्वितीय पक्षिय यांनी प्रथम पक्षिय यांस देण्याचे मान्य केलेले आहे.
+        <button class="delete-btn" title="हटवा">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">३)</span>
+      <div class="clause-body">
+        तसेच सदरहू करारान्वये दोन्ही पक्षियांमध्ये असे ठरलेले आहे की, सदरहू फ्लॅट/रूमचे अनामत रक्कम (डिपॉझिट) म्हणून द्वितीय पक्षिय यांस रक्कम रूपये <span class="ef" contenteditable="true">३५,०००/-</span> (अक्षरी <span class="ef" contenteditable="true">पस्तीस हजार रूपये मात्र</span>) ठरलेले आहे. तसेच सदरहू रक्कमेवर कोणत्याही प्रकारचे व्याज आकारण्यात येणार नाही.
+        <button class="delete-btn" title="हटवा">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">४)</span>
+      <div class="clause-body">
+        सदरहू करारान्वये दोन्ही पक्षियांमध्ये असेही मान्य करण्यात आलेले आहे की, सदरहू फ्लॅट/रूम दर महिन्याचे जे विद्युत बिल येईल ते द्वितीय पक्षिय (भाडोत्री) भरतील. आणि सोसायटी मेन्टानान्स प्रथम पक्षीय भरतील.
+        <button class="delete-btn" title="हटवा">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">५)</span>
+      <div class="clause-body">
+        त्याचप्रमाणे सदरहू करारान्वये द्वितीय पक्षियांनी सदर फ्लॅट/रूमचे दरमहाचे भाडे प्रत्येक महिन्याचा <span class="ef" contenteditable="true">०५</span> तारखेपर्यंत देण्याचे ठरले आहे.
+        <button class="delete-btn" title="हटवा">✕</button>
+      </div>
+    </div>
+
+    <div class="sig-row">
+      <div class="sig-item">मालक<span class="sig-line"></span></div>
+      <div class="sig-item">भाडेकरू<span class="sig-line"></span></div>
+    </div>
+  </div>
+
+  <!-- MARATHI PAGE 2 -->
+  <div class="page" id="mr-page2">
+    <div class="page-label">पान २ / Page 2</div>
+
+    <div class="clause">
+      <span class="clause-num">६)</span>
+      <div class="clause-body">
+        तसेच सदरहू फ्लॅट/रूम मध्ये द्वितीय पक्षिय यांनी कोणत्याही प्रकारचा गैर कारभार करू नये, अथवा दुसरा कोणताही पोट भाडोत्री या फ्लॅट/रूम मध्ये ठेवू नये. अगर द्वितीय पक्षिय यांनी तसे केल्यास प्रथम पक्षिय हे कोणतीही पूर्व सूचना न देता सदरहू फ्लॅट/रूम खाली करवून घेतील.
+        <button class="delete-btn" title="हटवा">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">७)</span>
+      <div class="clause-body">
+        त्याचप्रमाणे प्रथम पक्षिय यांने द्वितीय पक्षियास सदरहू फ्लॅट/रूम देते वेळी जशी स्थितीत आहे त्याच स्थितीत द्वितीय पक्षिय हे प्रथम पक्षिय यास परत करतील. तसेच भविष्यात काही नुकसानी झाल्यास त्याची द्वितीय पक्षिय हे भरपाई देतील असे दोन्ही पक्षियांस मान्य व कबूल केलेले आहे.
+        <button class="delete-btn" title="हटवा">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">८)</span>
+      <div class="clause-body">
+        तसेच प्रथम पक्षिय यांस मुदतीच्या आत सदरहू फ्लॅट/रूम खाली करावयाची असल्यास किंवा द्वितीय पक्षियास मुदतीच्या आत फ्लॅट/रूम सोडून जाण्याचे असल्यास तो समोरील पक्षास (मालक) यांना एक महिन्याची आगाऊ सूचना करेल.
+        <button class="delete-btn" title="हटवा">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">९)</span>
+      <div class="clause-body">
+        तसेच सदरहू करान्वये असे ठरलेले आहे की, सदरहू फ्लॅट/रूमचा करार संपल्यानंतर द्वितीय पक्षिय हे फ्लॅट/रूमचा ताबा प्रथम पक्षिय यांस देतील. व प्रथम पक्षिय हे द्वितीय पक्षिय यांची अनामत रक्कम परत करतील. व कोणत्याही प्रकारची तोडफोड झाल्याची जबाबदारी ही भाडेकरूवर अवलंबून राहील.
+        <button class="delete-btn" title="हटवा">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">१०)</span>
+      <div class="clause-body">
+        द्वितीय पक्षकारांचा सदर फ्लॅटवर कोणत्याही प्रकारचा हक्क राहणार नाही. त्यांना लोन अथवा नवीन रेशनकार्ड काढणे, इत्यादी गोष्ट सदर फ्लॅटच्या पत्यावर करता येणार नाही.
+        <button class="delete-btn" title="हटवा">✕</button>
+      </div>
+    </div>
+
+    <div class="sig-row">
+      <div class="sig-item">मालक<span class="sig-line"></span></div>
+      <div class="sig-item">भाडेकरू<span class="sig-line"></span></div>
+    </div>
+  </div>
+
+  <!-- MARATHI PAGE 3 -->
+ <div class="page" id="mr-page3">
+
+  <div class="page-label">पान ३ / Page 3</div>
+
+  <p class="editable-para">
+    दोन्ही पक्षकार मान्य व कबूल करतात की, सदर करारनाम्यातील सर्व अटी व शर्ती समजून घेतल्या आहेत. सदर करारनामा तयार करताना यांनी वाचून व समजून घेतल्याशिवाय कोणत्याही प्रकारचे समज न घेता सह्या केल्या आहेत.
+    <button class="delete-btn" title="हटवा">✕</button>
+  </p>
+
+  <div style="margin-top:40px;">
+
+    <!-- First Party -->
+    <div class="party-card">
+
+      <div class="party-label">प्रथम पक्षिय / मालक</div>
+
+      <div class="party-name" style="margin-bottom:12px;">
+        <strong>
+          मी.
+          <span class="ef" contenteditable="true">
+            दीपाली आनंदा निकम
+          </span>
+        </strong>
+      </div>
+
+      <div class="witness-section">
+
+        <!-- Editable Witness Title -->
+        <div class="witness-title" style="margin-bottom:10px;">
+          <input 
+            type="text"
+            value="साक्षीदार "
+            style="
+              width:240px;
+              border:none;
+              border-bottom:1px solid #999;
+              background:transparent;
+              font-size:14px;
+              font-weight:600;
+              outline:none;
+              padding:4px 2px;
+            "
+          >
+        </div>
+
+        <!-- Witness 1 -->
+        <div class="witness-line" style="margin-bottom:10px;">
+          <span class="witness-num">१)</span>
+          <input 
+            type="text"
+            placeholder=""
+            style="
+              width:280px;
+              border:none;
+              border-bottom:1px solid #000;
+              background:transparent;
+              outline:none;
+              padding:4px;
+            "
+          >
+        </div>
+
+        <!-- Witness 2 -->
+        <div class="witness-line">
+          <span class="witness-num">२)</span>
+          <input 
+            type="text"
+            placeholder=""
+            style="
+              width:280px;
+              border:none;
+              border-bottom:1px solid #000;
+              background:transparent;
+              outline:none;
+              padding:4px;
+            "
+          >
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Second Party -->
+    <div class="party-card">
+
+      <div class="party-label">द्वितीय पक्षिय / भाडेकरू</div>
+
+      <div class="party-name" style="margin-bottom:12px;">
+        <strong>
+          मी.
+          <span class="ef" contenteditable="true">
+            चैत्राली अजित गायकवाड
+          </span>
+        </strong>
+      </div>
+
+      <div class="witness-section">
+
+        <!-- Editable Witness Title -->
+        <div class="witness-title" style="margin-bottom:10px;">
+          <input 
+            type="text"
+            value="साक्षीदार"
+            style="
+              width:240px;
+              border:none;
+              border-bottom:1px solid #999;
+              background:transparent;
+              font-size:14px;
+              font-weight:600;
+              outline:none;
+              padding:4px 2px;
+            "
+          >
+        </div>
+
+        <!-- Witness 1 -->
+        <div class="witness-line" style="margin-bottom:10px;">
+          <span class="witness-num">१)</span>
+          <input 
+            type="text"
+            placeholder=""
+            style="
+              width:280px;
+              border:none;
+              border-bottom:1px solid #000;
+              background:transparent;
+              outline:none;
+              padding:4px;
+            "
+          >
+        </div>
+
+        <!-- Witness 2 -->
+        <div class="witness-line">
+          <span class="witness-num">२)</span>
+          <input 
+            type="text"
+            placeholder=""
+            style="
+              width:280px;
+              border:none;
+              border-bottom:1px solid #000;
+              background:transparent;
+              outline:none;
+              padding:4px;
+            "
+          >
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sig-row">
+
+    <div class="sig-item">
+      मालक
+      <span class="sig-line"></span>
+    </div>
+
+    <div class="sig-item">
+      भाडेकरू
+      <span class="sig-line"></span>
+    </div>
+
+  </div>
+
+</div>
+
+  <!-- MARATHI PAGE 4 -->
+  <div class="page" id="mr-page4">
+    <div class="page-label">पान ४ / Page 4</div>
+
+    <div class="receipt-header">
+      <div class="receipt-title-main">पावती</div>
+      <div class="receipt-title-sub">RECEIPT</div>
+    </div>
+
+    <p class="editable-para">
+      उपरोक्त निर्देशात द्वितीय पक्षकार <span class="ef" contenteditable="true">सौ. चैत्राली अजित गायकवाड</span> यांच्याकडून साक्षीदारासमक्ष <span class="ef" contenteditable="true">फ्लॅट नं-४०१</span>, <span class="ef" contenteditable="true">शिव प्रेरणा बिल्डिंग</span>, प्लॉट नं. बी <span class="ef" contenteditable="true">१०८</span>, सेक्टर - <span class="ef" contenteditable="true">२९</span>, <span class="ef" contenteditable="true">आग्रोळी गांव</span>, सी.बी.डी. बेलापुर नवी मुंबई-<span class="ef" contenteditable="true">४००६१४</span> फ्लॅटची अनामत (डिपॉझिट) रक्कम रूपये <span class="ef" contenteditable="true">३५,०००/-</span> (अक्षरी <span class="ef" contenteditable="true">पस्तीस हजार रूपये मात्र</span>) मला मिळाले.
+      <button class="delete-btn" title="हटवा">✕</button>
+    </p>
+
+    <div style="text-align:center; margin-top:44px;">
+      <div style="font-weight:600; margin-bottom:14px; font-size:14px;">सही / Signature</div>
+      <div class="amount-box">
+        <div class="amount-label">अनामत रक्कम · Deposit Amount</div>
+        <div class="amount-value"><span class="ef" contenteditable="true">₹ ३५,०००/-</span></div>
+      </div>
+      <div style="margin:26px auto 0; width:fit-content;">
+        <div class="stamp-box"><div>Revenue<br>Stamp</div><div style="font-size:9px;margin-top:5px;">येथे चिकटवा</div></div>
+        <div style="font-weight:700; font-size:15px; margin-top:8px;"><span class="ef" contenteditable="true">सौ. दीपाली आनंदा निकम</span></div>
+        <div style="font-size:12px; color:rgba(26,18,8,0.55); margin-top:3px;">प्रथम पक्षिय / मालक</div>
+      </div>
+    </div>
+
+   <div class="witness-section" style="margin-top:44px;">
+
+  <div class="witness-title">साक्षीदार</div>
+
+  <div class="witness-line">
+    <span class="witness-num">१)</span>
+    <input 
+      type="text"
+      style="
+        width:280px;
+        border:none;
+        border-bottom:1px solid #000;
+        background:transparent;
+        outline:none;
+        padding:4px;
+        font-size:14px;
+      "
+    >
+  </div>
+
+  <div class="witness-line">
+    <span class="witness-num">२)</span>
+    <input 
+      type="text"
+      style="
+        width:280px;
+        border:none;
+        border-bottom:1px solid #000;
+        background:transparent;
+        outline:none;
+        padding:4px;
+        font-size:14px;
+      "
+    >
+  </div>
+
+</div>
+
+
+    
+  </div>
+
+</div><!-- end block-mr -->
+
+
+<!-- ════════════════════════════════
+     ENGLISH VERSION
+════════════════════════════════ -->
+<div class="lang-block" id="block-en">
+
+  <!-- ENGLISH PAGE 1 -->
+  <div class="page" id="en-page1">
+    <div class="page-label">Page 1 / पान १</div>
+
+    <p class="editable-para">
+      This Agreement is executed on this day, Date: <span class="ef" contenteditable="true">04/05/2026</span>, between the two parties mentioned above.
+      <button class="delete-btn" title="Delete">✕</button>
+    </p>
+
+    <p class="editable-para">
+      Whereas the First Party is the legal owner of the flat/room situated at:— <span class="ef" contenteditable="true">Flat No. 401</span>, <span class="ef" contenteditable="true">Shiv Prerna Building</span>, Plot No. B <span class="ef" contenteditable="true">108</span>, Sector - <span class="ef" contenteditable="true">29</span>, <span class="ef" contenteditable="true">Agroali Village</span>, CBD Belapur, Navi Mumbai - <span class="ef" contenteditable="true">400614</span>. The First Party agrees to let out the said flat/room to the Second Party on a rental basis from Date <span class="ef" contenteditable="true">04/05/2026</span> for a period of <span class="ef" contenteditable="true">11 (Eleven)</span> months. The terms and conditions agreed upon between both parties are as follows:—
+      <button class="delete-btn" title="Delete">✕</button>
+    </p>
+
+    <div class="clause">
+      <span class="clause-num">1)</span>
+      <div class="clause-body">
+        The First Party has given the flat/room at the above address to the Second Party for use from Date <span class="ef" contenteditable="true">01/05/2026</span> to Date <span class="ef" contenteditable="true">31/03/2027</span>, for a period of <span class="ef" contenteditable="true">11 (Eleven)</span> months.
+        <button class="delete-btn" title="Delete">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">2)</span>
+      <div class="clause-body">
+        It is agreed between both parties under this agreement that the monthly rent for the said flat/room shall be Rs. <span class="ef" contenteditable="true">12,000/-</span> (Rupees <span class="ef" contenteditable="true">Twelve Thousand Only</span>), which the Second Party agrees to pay to the First Party.
+        <button class="delete-btn" title="Delete">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">3)</span>
+      <div class="clause-body">
+        It is further agreed between both parties that the security deposit (refundable) for the said flat/room shall be Rs. <span class="ef" contenteditable="true">35,000/-</span> (Rupees <span class="ef" contenteditable="true">Thirty-Five Thousand Only</span>). No interest of any kind shall be charged on the said amount.
+        <button class="delete-btn" title="Delete">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">4)</span>
+      <div class="clause-body">
+        It is also mutually agreed that the monthly electricity bill for the said flat/room shall be paid by the Second Party (Tenant). The society maintenance charges shall be paid by the First Party.
+        <button class="delete-btn" title="Delete">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">5)</span>
+      <div class="clause-body">
+        It is agreed that the Second Party shall pay the monthly rent of the said flat/room on or before the <span class="ef" contenteditable="true">5th</span> of every month.
+        <button class="delete-btn" title="Delete">✕</button>
+      </div>
+    </div>
+
+    <div class="sig-row">
+      <div class="sig-item">Owner<span class="sig-line"></span></div>
+      <div class="sig-item">Tenant<span class="sig-line"></span></div>
+    </div>
+  </div>
+
+  <!-- ENGLISH PAGE 2 -->
+  <div class="page" id="en-page2">
+    <div class="page-label">Page 2 / पान २</div>
+
+    <div class="clause">
+      <span class="clause-num">6)</span>
+      <div class="clause-body">
+        The Second Party shall not engage in any misconduct in the said flat/room, nor shall any sub-tenant be kept therein. If the Second Party does so, the First Party shall have the right to vacate the flat/room without any prior notice.
+        <button class="delete-btn" title="Delete">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">7)</span>
+      <div class="clause-body">
+        The Second Party shall return the said flat/room to the First Party in the same condition as it was handed over. Both parties mutually agree and acknowledge that in case of any damage in the future, the Second Party shall be liable to compensate for the same.
+        <button class="delete-btn" title="Delete">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">8)</span>
+      <div class="clause-body">
+        If the First Party wishes to vacate the flat/room before the expiry of the agreement period, or if the Second Party wishes to vacate before the expiry, the concerned party shall give one month's advance notice to the other party (Owner).
+        <button class="delete-btn" title="Delete">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">9)</span>
+      <div class="clause-body">
+        It is agreed under this agreement that after the expiry of the agreement, the Second Party shall hand over possession of the flat/room to the First Party. The First Party shall return the security deposit to the Second Party. The responsibility for any damage caused shall rest with the Tenant.
+        <button class="delete-btn" title="Delete">✕</button>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-num">10)</span>
+      <div class="clause-body">
+        The Second Party shall have no right of any kind over the said flat. The Second Party shall not be permitted to obtain a loan, new ration card, or any such document using the address of the said flat.
+        <button class="delete-btn" title="Delete">✕</button>
+      </div>
+    </div>
+
+    <div class="sig-row">
+      <div class="sig-item">Owner<span class="sig-line"></span></div>
+      <div class="sig-item">Tenant<span class="sig-line"></span></div>
+    </div>
+  </div>
+
+  <!-- ENGLISH PAGE 3 -->
+ <div class="page" id="en-page3">
+
+  <div class="page-label">Page 3 / पान ३</div>
+
+  <p class="editable-para">
+    Both parties agree and acknowledge that they have read and understood all the terms and conditions of this agreement. The signatures on this agreement have been made after fully reading and comprehending all the contents without any misunderstanding.
+    <button class="delete-btn" title="Delete">✕</button>
+  </p>
+
+  <div style="margin-top:40px;">
+
+    <!-- First Party -->
+    <div class="party-card">
+
+      <div class="party-label">First Party / Owner</div>
+
+      <div class="party-name" style="margin-bottom:12px;">
+        <strong>
+          Ms.
+          <span class="ef" contenteditable="true">
+            Deepali Ananda Nikam
+          </span>
+        </strong>
+      </div>
+
+      <div class="witness-section">
+
+        <!-- Editable Witness Title -->
+        <div class="witness-title" style="margin-bottom:10px;">
+          <input 
+            type="text"
+            value="Witness "
+            style="
+              width:240px;
+              border:none;
+              border-bottom:1px solid #999;
+              background:transparent;
+              font-size:14px;
+              font-weight:600;
+              outline:none;
+              padding:4px 2px;
+            "
+          >
+        </div>
+
+        <!-- Witness 1 -->
+        <div class="witness-line" style="margin-bottom:10px;">
+          <span class="witness-num">1)</span>
+          <input 
+            type="text"
+            placeholder=""
+            style="
+              width:280px;
+              border:none;
+              border-bottom:1px solid #000;
+              background:transparent;
+              outline:none;
+              padding:4px;
+            "
+          >
+        </div>
+
+        <!-- Witness 2 -->
+        <div class="witness-line">
+          <span class="witness-num">2)</span>
+          <input 
+            type="text"
+            placeholder=""
+            style="
+              width:280px;
+              border:none;
+              border-bottom:1px solid #000;
+              background:transparent;
+              outline:none;
+              padding:4px;
+            "
+          >
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Second Party -->
+    <div class="party-card">
+
+      <div class="party-label">Second Party / Tenant</div>
+
+      <div class="party-name" style="margin-bottom:12px;">
+        <strong>
+          Ms.
+          <span class="ef" contenteditable="true">
+            Chaitrali Ajit Gaikwad
+          </span>
+        </strong>
+      </div>
+
+      <div class="witness-section">
+
+        <!-- Editable Witness Title -->
+        <div class="witness-title" style="margin-bottom:10px;">
+          <input 
+            type="text"
+            value="Witness "
+            style="
+              width:240px;
+              border:none;
+              border-bottom:1px solid #999;
+              background:transparent;
+              font-size:14px;
+              font-weight:600;
+              outline:none;
+              padding:4px 2px;
+            "
+          >
+        </div>
+
+        <!-- Witness 1 -->
+        <div class="witness-line" style="margin-bottom:10px;">
+          <span class="witness-num">1)</span>
+          <input 
+            type="text"
+            placeholder=""
+            style="
+              width:280px;
+              border:none;
+              border-bottom:1px solid #000;
+              background:transparent;
+              outline:none;
+              padding:4px;
+            "
+          >
+        </div>
+
+        <!-- Witness 2 -->
+        <div class="witness-line">
+          <span class="witness-num">2)</span>
+          <input 
+            type="text"
+            placeholder=""
+            style="
+              width:280px;
+              border:none;
+              border-bottom:1px solid #000;
+              background:transparent;
+              outline:none;
+              padding:4px;
+            "
+          >
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sig-row">
+
+    <div class="sig-item">
+      Owner
+      <span class="sig-line"></span>
+    </div>
+
+    <div class="sig-item">
+      Tenant
+      <span class="sig-line"></span>
+    </div>
+
+  </div>
+
+</div>
+
+  <!-- ENGLISH PAGE 4 -->
+  <div class="page" id="en-page4">
+    <div class="page-label">Page 4 / पान ४</div>
+
+    <div class="receipt-header">
+      <div class="receipt-title-main" style="font-family:'Playfair Display',serif; font-size:26px;">Receipt</div>
+      <div class="receipt-title-sub">पावती</div>
+    </div>
+
+    <p class="editable-para">
+      As mentioned above, I hereby acknowledge receiving the security deposit (refundable) amount of Rs. <span class="ef" contenteditable="true">35,000/-</span> (Rupees <span class="ef" contenteditable="true">Thirty-Five Thousand Only</span>) from the Second Party <span class="ef" contenteditable="true">Mrs. Chaitrali Ajit Gaikwad</span>, in the presence of witnesses, for the flat/room at <span class="ef" contenteditable="true">Flat No. 401</span>, <span class="ef" contenteditable="true">Shiv Prerna Building</span>, Plot No. B <span class="ef" contenteditable="true">108</span>, Sector - <span class="ef" contenteditable="true">29</span>, <span class="ef" contenteditable="true">Agroali Village</span>, CBD Belapur, Navi Mumbai - <span class="ef" contenteditable="true">400614</span>.
+      <button class="delete-btn" title="Delete">✕</button>
+    </p>
+
+    <div style="text-align:center; margin-top:44px;">
+      <div style="font-weight:600; margin-bottom:14px; font-size:14px;">Signature / सही</div>
+      <div class="amount-box">
+        <div class="amount-label">Deposit Amount · अनामत रक्कम</div>
+        <div class="amount-value"><span class="ef" contenteditable="true">₹ 35,000/-</span></div>
+      </div>
+      <div style="margin:26px auto 0; width:fit-content;">
+        <div class="stamp-box"><div>Revenue<br>Stamp</div><div style="font-size:9px;margin-top:5px;">Affix Here</div></div>
+        <div style="font-weight:700; font-size:15px; margin-top:8px;"><span class="ef" contenteditable="true">Mrs. Deepali Ananda Nikam</span></div>
+        <div style="font-size:12px; color:rgba(26,18,8,0.55); margin-top:3px;">First Party / Owner</div>
+      </div>
+    </div>
+
+    <div class="witness-section" style="margin-top:44px;">
+
+  <div class="witness-title"> Witness</div>
+
+  <div class="witness-line">
+    <span class="witness-num">१)</span>
+    <input 
+      type="text"
+      style="
+        width:280px;
+        border:none;
+        border-bottom:1px solid #000;
+        background:transparent;
+        outline:none;
+        padding:4px;
+        font-size:14px;
+      "
+    >
+  </div>
+
+  <div class="witness-line">
+    <span class="witness-num">२)</span>
+    <input 
+      type="text"
+      style="
+        width:280px;
+        border:none;
+        border-bottom:1px solid #000;
+        background:transparent;
+        outline:none;
+        padding:4px;
+        font-size:14px;
+      "
+    >
+  </div>
+
+</div>
+  </div>
+
+</div><!-- end block-en -->
+
+</div><!-- end pages-container -->
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let lang     = 'mr';
+let addType  = 'para';
+let ctxTarget = null;
+let toastTimer = null;
+
+// ═══════════════════════════════════════════════════
+// LANGUAGE TOGGLE — swap entire page blocks
+// ═══════════════════════════════════════════════════
+function toggleLanguage() {
+  lang = (lang === 'mr') ? 'en' : 'mr';
+
+  // Show/hide language blocks
+  document.getElementById('block-mr').classList.toggle('active', lang === 'mr');
+  document.getElementById('block-en').classList.toggle('active', lang === 'en');
+
+  // Toolbar UI strings
+  const isMr = (lang === 'mr');
+  document.getElementById('langBtn').textContent        = isMr ? '🇬🇧 English' : '🇮🇳 मराठी';
+  document.getElementById('lang-indicator').textContent = isMr ? 'मराठी' : 'English';
+  document.getElementById('brand-title').textContent    = isMr ? 'भाडे करार संपादक' : 'Rent Agreement Editor';
+  document.getElementById('brand-sub').textContent      = isMr ? 'RENT AGREEMENT EDITOR' : 'भाडे करार संपादक';
+  document.getElementById('add1-btn').textContent       = isMr ? '＋ पान १' : '＋ Page 1';
+  document.getElementById('add2-btn').textContent       = isMr ? '＋ पान २' : '＋ Page 2';
+  document.getElementById('add3-btn').textContent       = isMr ? '＋ पान ३' : '＋ Page 3';
+  document.getElementById('add4-btn').textContent       = isMr ? '＋ पान ४' : '＋ Page 4';
+  document.getElementById('quick-add-btn').textContent  = isMr ? '＋ नवा परिच्छेद' : '＋ Add Paragraph';
+
+  // Context menu
+  document.getElementById('ctx-edit-lbl').textContent   = isMr ? 'संपादित करा' : 'Edit';
+  document.getElementById('ctx-del-lbl').textContent    = isMr ? 'हटवा' : 'Delete';
+
+  // Edit overlay
+  document.getElementById('edit-title').textContent     = isMr ? 'परिच्छेद संपादित करा' : 'Edit Paragraph';
+  document.getElementById('edit-desc').textContent      = isMr ? 'मजकूर बदला आणि जतन करा.' : 'Change the text and save.';
+  document.getElementById('edit-cancel-btn').textContent= isMr ? 'रद्द करा' : 'Cancel';
+  document.getElementById('edit-save-btn').textContent  = isMr ? 'जतन करा' : 'Save';
+
+  // Add modal
+  document.getElementById('modal-title').textContent    = isMr ? 'नवीन परिच्छेद जोडा' : 'Add New Content';
+  document.getElementById('modal-desc').textContent     = isMr ? 'पान निवडा, प्रकार निवडा आणि मजकूर लिहा.' : 'Select page, choose type and write text.';
+  document.getElementById('modal-page-lbl').textContent = isMr ? 'पान निवडा:' : 'Select Page:';
+  document.getElementById('modal-cancel-btn').textContent= isMr ? 'रद्द करा' : 'Cancel';
+  document.getElementById('modal-add-btn').textContent  = isMr ? 'जोडा' : 'Add';
+  document.getElementById('type-para-btn').textContent  = isMr ? '¶ परिच्छेद' : '¶ Paragraph';
+  document.getElementById('type-clause-btn').textContent= isMr ? '№ कलम' : '№ Clause';
+  document.getElementById('modal-num-lbl').textContent  = isMr ? 'कलम क्र.:' : 'Clause No.:';
+  document.getElementById('add-modal-textarea').placeholder = isMr ? 'येथे लिहा...' : 'Write here...';
+
+  // Page dropdown options
+  const sel  = document.getElementById('modal-page-select');
+  const opts = isMr
+    ? ['पान १','पान २','पान ३','पान ४']
+    : ['Page 1','Page 2','Page 3','Page 4'];
+  Array.from(sel.options).forEach((o, i) => { o.text = opts[i]; });
+
+  // Re-bind listeners for the newly visible block
+  bindListeners();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════
+// PRINT
+// ═══════════════════════════════════════════════════
+function printDoc() {
+  const orig = document.title;
+  document.title = '';
+  window.print();
+  setTimeout(() => { document.title = orig; }, 1000);
+}
+
+// ═══════════════════════════════════════════════════
+// CONTEXT MENU
+// ═══════════════════════════════════════════════════
+function showCtx(e, el) {
+  e.preventDefault(); e.stopPropagation();
+  ctxTarget = el;
+  const menu = document.getElementById('ctx-menu');
+  menu.style.display = 'block';
+  let x = e.clientX, y = e.clientY;
+  if (x + 200 > window.innerWidth)  x = window.innerWidth - 205;
+  if (y + 130 > window.innerHeight) y = window.innerHeight - 135;
+  menu.style.left = x + 'px';
+  menu.style.top  = y + 'px';
+}
+function hideCtxMenu() { document.getElementById('ctx-menu').style.display = 'none'; }
+
+// ═══════════════════════════════════════════════════
+// EDIT
+// ═══════════════════════════════════════════════════
+function ctxEdit() {
+  hideCtxMenu();
+  if (!ctxTarget) return;
+  const clone = ctxTarget.cloneNode(true);
+  clone.querySelectorAll('.delete-btn').forEach(b => b.remove());
+  document.getElementById('edit-textarea').value = clone.innerText.trim();
+  document.getElementById('edit-overlay').classList.add('open');
+  document.getElementById('edit-textarea').focus();
+}
+
+function saveEdit() {
+  const text = document.getElementById('edit-textarea').value.trim();
+  if (!text || !ctxTarget) { closeEditOverlay(); return; }
+  ctxTarget.innerHTML = '';
+  ctxTarget.appendChild(document.createTextNode(text + ' '));
+  ctxTarget.appendChild(makeDeleteBtn());
+  closeEditOverlay();
+  showToast(lang === 'mr' ? '✅ जतन केले!' : '✅ Saved!');
+}
+
+function closeEditOverlay() {
+  document.getElementById('edit-overlay').classList.remove('open');
+  ctxTarget = null;
+}
+
+// ═══════════════════════════════════════════════════
+// DELETE
+// ═══════════════════════════════════════════════════
+function ctxDelete() {
+  hideCtxMenu();
+  if (!ctxTarget) return;
+  if (!confirm(lang === 'mr' ? 'हटवायचे आहे?' : 'Delete this?')) { ctxTarget = null; return; }
+  const parentClause = ctxTarget.closest('.clause');
+  if (parentClause) parentClause.remove();
+  else ctxTarget.remove();
+  ctxTarget = null;
+  showToast(lang === 'mr' ? '✅ हटवले!' : '✅ Deleted!');
+}
+
+function deletePara(btn) {
+  if (!confirm(lang === 'mr' ? 'हटवायचे आहे?' : 'Delete this?')) return;
+  const clauseBody = btn.closest('.clause-body');
+  if (clauseBody) {
+    const parentClause = clauseBody.closest('.clause');
+    if (parentClause) parentClause.remove();
+  } else {
+    const para = btn.closest('.editable-para');
+    if (para) para.remove();
+  }
+  showToast(lang === 'mr' ? '✅ हटवले!' : '✅ Deleted!');
+}
+
+// ═══════════════════════════════════════════════════
+// ADD MODAL
+// ═══════════════════════════════════════════════════
+function selectType(type) {
+  addType = type;
+  document.getElementById('type-para-btn').classList.toggle('active', type === 'para');
+  document.getElementById('type-clause-btn').classList.toggle('active', type === 'clause');
+  document.getElementById('modal-num-row').style.display = type === 'clause' ? 'flex' : 'none';
+}
+
+function openAddModal(pageNum) {
+  selectType('para');
+  document.getElementById('add-modal-textarea').value = '';
+  document.getElementById('modal-clause-num').value   = '';
+  document.getElementById('modal-page-select').value  = String(pageNum);
+  document.getElementById('add-modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('add-modal-textarea').focus(), 100);
+}
+
+function closeModal() { document.getElementById('add-modal-overlay').classList.remove('open'); }
+
+function confirmAdd() {
+  const text = document.getElementById('add-modal-textarea').value.trim();
+  if (!text) { showToast(lang === 'mr' ? '⚠️ मजकूर लिहा!' : '⚠️ Please enter text!'); return; }
+
+  const pageNum = parseInt(document.getElementById('modal-page-select').value, 10);
+  const prefix  = lang === 'mr' ? 'mr' : 'en';
+  const page    = document.getElementById(prefix + '-page' + pageNum);
+  if (!page) return;
+
+  const sigRow = page.querySelector('.sig-row');
+  const newEl  = addType === 'para'
+    ? createParagraphElement(text)
+    : createClauseElement(document.getElementById('modal-clause-num').value.trim() || '?)', text);
+
+  if (sigRow) page.insertBefore(newEl, sigRow);
+  else        page.appendChild(newEl);
+
+  closeModal();
+  newEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  showToast(lang === 'mr' ? '✅ जोडले!' : '✅ Added!');
+}
+
+// ═══════════════════════════════════════════════════
+// QUICK ADD
+// ═══════════════════════════════════════════════════
+function quickAddParagraph() {
+  const prefix = lang === 'mr' ? 'mr' : 'en';
+  let targetPage = document.getElementById(prefix + '-page1');
+  const scrollMid = window.scrollY + window.innerHeight / 2;
+
+  document.querySelectorAll('#block-' + prefix + ' .page').forEach(page => {
+    const rect = page.getBoundingClientRect();
+    const top  = window.scrollY + rect.top;
+    const bot  = top + rect.height;
+    if (scrollMid >= top && scrollMid <= bot) targetPage = page;
+  });
+
+  const sigRow     = targetPage.querySelector('.sig-row');
+  const placeholder = lang === 'mr' ? 'येथे नवीन मजकूर लिहा...' : 'Write new text here...';
+  const para       = createParagraphElement(placeholder);
+
+  if (sigRow) targetPage.insertBefore(para, sigRow);
+  else        targetPage.appendChild(para);
+
+  para.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const ef = para.querySelector('.ef');
+  if (ef) {
+    setTimeout(() => {
+      ef.focus();
+      const range = document.createRange();
+      range.selectNodeContents(ef);
+      const sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+    }, 200);
+  }
+  showToast(lang === 'mr' ? '✅ जोडले!' : '✅ Added!');
+}
+
+// ═══════════════════════════════════════════════════
+// ELEMENT HELPERS
+// ═══════════════════════════════════════════════════
+function makeDeleteBtn() {
+  const btn = document.createElement('button');
+  btn.className = 'delete-btn';
+  btn.title = lang === 'mr' ? 'हटवा' : 'Delete';
+  btn.textContent = '✕';
+  btn.addEventListener('click', e => { e.stopPropagation(); deletePara(btn); });
+  return btn;
+}
+
+function createParagraphElement(text) {
+  const para = document.createElement('p');
+  para.className = 'editable-para';
+  para.addEventListener('contextmenu', e => showCtx(e, para));
+  const span = document.createElement('span');
+  span.className = 'ef'; span.contentEditable = 'true'; span.textContent = text;
+  para.appendChild(span);
+  para.appendChild(document.createTextNode(' '));
+  para.appendChild(makeDeleteBtn());
+  return para;
+}
+
+function createClauseElement(num, text) {
+  const clause = document.createElement('div');
+  clause.className = 'clause';
+  const clauseNum = document.createElement('span');
+  clauseNum.className = 'clause-num'; clauseNum.textContent = num;
+  const body = document.createElement('div');
+  body.className = 'clause-body';
+  body.addEventListener('contextmenu', e => showCtx(e, body));
+  const span = document.createElement('span');
+  span.className = 'ef'; span.contentEditable = 'true'; span.textContent = text;
+  body.appendChild(span);
+  body.appendChild(document.createTextNode(' '));
+  body.appendChild(makeDeleteBtn());
+  clause.appendChild(clauseNum);
+  clause.appendChild(body);
+  return clause;
+}
+
+// ═══════════════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════════════
+function resetAll() {
+  if (confirm(lang === 'mr' ? 'सर्व बदल रीसेट करायचे आहेत?' : 'Reset all changes?')) {
+    location.reload();
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.display = 'none'; }, 2500);
+}
+
+// ═══════════════════════════════════════════════════
+// BIND LISTENERS — runs on init and after lang switch
+// ═══════════════════════════════════════════════════
+function bindListeners() {
+  // Only bind to the currently visible block
+  const block = document.getElementById('block-' + lang);
+
+  block.querySelectorAll('.editable-para').forEach(el => {
+    // Remove old listener by cloning, then rebind
+    el.addEventListener('contextmenu', e => showCtx(e, el));
+  });
+  block.querySelectorAll('.clause-body').forEach(el => {
+    el.addEventListener('contextmenu', e => showCtx(e, el));
+  });
+  block.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.onclick = function(e) { e.stopPropagation(); deletePara(btn); };
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  bindListeners();
+
+  // Close ctx menu on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#ctx-menu')) hideCtxMenu();
+  });
+
+  // Close overlays on backdrop click
+  document.getElementById('edit-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeEditOverlay();
+  });
+  document.getElementById('add-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (document.getElementById('edit-overlay').classList.contains('open')) closeEditOverlay();
+      if (document.getElementById('add-modal-overlay').classList.contains('open')) closeModal();
+      hideCtxMenu();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      if (document.getElementById('edit-overlay').classList.contains('open')) {
+        e.preventDefault(); saveEdit();
+      }
+    }
+  });
+
+  // Sync page dropdown
+  document.getElementById('modal-page-select').addEventListener('change', function() {
+    // value already used in confirmAdd()
+  });
+});
+</script>
+</body>
+</html>
