@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>लिव्ह अँड लायसन्स करारनामा</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+    :root {
+      --ink:#1a1105; --muted:#6b5a3e; --border:#d4c4a8; --bg:#f0ebe0;
+      --card:#fffdf7; --accent:#6b3a1f; --field-bg:#fffbf2;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Noto Sans Devanagari',serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+
+    .topbar{background:var(--accent);color:#fff;padding:13px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 3px 12px rgba(0,0,0,0.22);position:sticky;top:0;z-index:200;}
+    .topbar-left h1{font-family:'Crimson Pro',serif;font-size:18px;font-weight:700;}
+    .topbar-left p{font-size:10.5px;opacity:0.72;margin-top:2px;}
+    .btn-pdf{background:#fff;color:var(--accent);border:none;padding:9px 22px;border-radius:7px;font-size:13px;font-weight:700;font-family:'Noto Sans Devanagari',serif;cursor:pointer;display:flex;align-items:center;gap:7px;transition:background 0.15s,transform 0.1s;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+    .btn-pdf:hover{background:#fdf0e0;transform:translateY(-1px);}
+    .btn-pdf:active{transform:translateY(0);}
+
+    .workspace{display:flex;gap:22px;padding:22px 28px;max-width:1400px;margin:0 auto;}
+    .form-panel{width:290px;flex-shrink:0;}
+    .panel-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:var(--accent);margin-bottom:12px;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:13px 14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+    .card-title{font-size:9.5px;font-weight:700;color:var(--accent);margin-bottom:9px;padding-bottom:5px;border-bottom:1px solid #e4d0b0;text-transform:uppercase;letter-spacing:1px;}
+    .field-row{margin-bottom:8px;}
+    .field-row label{display:block;font-size:9.5px;color:var(--muted);margin-bottom:3px;font-weight:600;}
+    .field-row input,.field-row textarea{width:100%;border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:11px;font-family:'Noto Sans Devanagari',serif;background:var(--field-bg);color:var(--ink);transition:border-color 0.15s;}
+    .field-row input:focus,.field-row textarea:focus{outline:none;border-color:var(--accent);}
+    .field-row textarea{resize:vertical;min-height:50px;line-height:1.5;}
+
+    .preview-panel{flex:1;}
+    .preview-wrapper{background:#777;border-radius:10px;padding:18px;display:flex;justify-content:center;align-items:flex-start;}
+
+    /* A4 screen preview */
+    #a4-preview{width:210mm;height:297mm;background:#fff;position:relative;box-shadow:0 6px 32px rgba(0,0,0,0.4);font-family:'Noto Sans Devanagari',serif;color:#000;overflow:hidden;}
+
+    .stamp-zone{position:absolute;top:0;left:0;right:0;height:60%;background:repeating-linear-gradient(45deg,#f9f4ea,#f9f4ea 12px,#f1e9d5 12px,#f1e9d5 24px);border-bottom:3px dashed #b08040;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+    .sz-icon{font-size:32pt;opacity:0.25;}
+    .sz-label{font-size:13pt;font-weight:700;color:#7a4010;opacity:0.5;}
+    .sz-sub{font-size:9pt;color:#9a6030;opacity:0.45;}
+
+    .doc-zone{position:absolute;top:60%;left:0;right:0;bottom:0;padding:7mm 14mm 5mm 14mm;display:flex;flex-direction:column;}
+    .doc-title{text-align:center;font-family:'Crimson Pro',serif;font-size:13pt;font-weight:700;border-bottom:2px solid #000;padding-bottom:5px;margin-bottom:8px;letter-spacing:0.5px;}
+    .party-block{display:flex;align-items:stretch;margin-bottom:5px;}
+    .party-info{flex:1;font-size:8.5pt;line-height:1.7;padding-right:6px;}
+    .party-info .pname{font-weight:700;font-size:9.5pt;}
+    .brace-side{display:flex;flex-direction:column;align-items:center;justify-content:center;width:68px;flex-shrink:0;text-align:center;}
+    .brace-sym{font-size:30pt;line-height:1;font-weight:200;}
+    .plabel{font-weight:700;font-size:8.5pt;line-height:1.3;}
+    .psub{font-size:8pt;color:#444;}
+    .sep-line{text-align:center;font-size:9.5pt;font-weight:700;letter-spacing:2px;margin:3px 0 5px;}
+    .prop-strip{background:#f8f3e8;border:1px solid #d4b87a;border-radius:5px;padding:4px 9px;font-size:8pt;margin:3px 0;line-height:1.75;}
+    .sig-row{margin-top:auto;display:flex;justify-content:space-around;align-items:flex-end;padding-top:7px;border-top:1px solid #bbb;}
+    .sig-block{text-align:center;}
+    .sig-line-el{width:85px;border-bottom:1.5px solid #000;margin-bottom:3px;}
+    .sig-lbl{font-size:7.5pt;color:#444;}
+    .doc-footer{text-align:center;font-size:7.5pt;color:#666;margin-top:4px;padding-top:4px;border-top:1px solid #ddd;}
+
+    /* Loading */
+    #loading-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+    #loading-overlay.show{display:flex;}
+    .spinner{width:44px;height:44px;border:4px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    #loading-overlay p{color:#fff;font-size:14px;font-weight:600;}
+  </style>
+</head>
+<body>
+
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <p>PDF तयार होत आहे…</p>
+</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>लिव्ह अँड लायसन्स / भाडे करारनामा — Maker</h1>
+    <p>डाव्या बाजूला माहिती भरा · उजव्या बाजूला पूर्वावलोकन पहा · PDF डाउनलोड करा</p>
+  </div>
+  <button class="btn-pdf" onclick="generatePDF()">📄 PDF डाउनलोड करा</button>
+</div>
+
+<div class="workspace">
+  <div class="form-panel">
+    <div class="panel-title">✏️ माहिती भरा</div>
+
+    <div class="card">
+      <div class="card-title">करारनामा शीर्षक</div>
+      <div class="field-row"><label>शीर्षक</label>
+        <input id="f-title" value="लिव्ह अँड लायसन्स / भाडे करारनामा" oninput="update()"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">प्रथम पक्षिय — मालक</div>
+      <div class="field-row"><label>नाव</label><input id="f1-name" value="सौ. दीपाली आनंदा निकम" oninput="update()"></div>
+      <div class="field-row"><label>वय</label><input id="f1-age" value="३६" oninput="update()"></div>
+      <div class="field-row"><label>राष्ट्रीयत्व</label><input id="f1-nat" value="भारतीय सज्ञान" oninput="update()"></div>
+      <div class="field-row"><label>व्यवसाय</label><input id="f1-occ" value="गृहिणी" oninput="update()"></div>
+      <div class="field-row"><label>पत्ता</label><textarea id="f1-addr" oninput="update()">रुम नं २०७, स्वपनपूर्ती बिल्डिंग नं. २३, महाराष्ट्र नगर, मानखुर्द ईस्ट, मुंबई – ४०००८८</textarea></div>
+      <div class="field-row"><label>लेबल</label><input id="f1-label" value="प्रथम पक्षिय" oninput="update()"></div>
+      <div class="field-row"><label>उप-लेबल</label><input id="f1-sub" value="(मालक)" oninput="update()"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">द्वितीय पक्षिय — भाडेकरू</div>
+      <div class="field-row"><label>नाव</label><input id="f2-name" value="सौ. चैत्राली अजित गायकवाड" oninput="update()"></div>
+      <div class="field-row"><label>वय</label><input id="f2-age" value="२८" oninput="update()"></div>
+      <div class="field-row"><label>राष्ट्रीयत्व</label><input id="f2-nat" value="भारतीय सज्ञान" oninput="update()"></div>
+      <div class="field-row"><label>व्यवसाय</label><input id="f2-occ" value="व्यापारी" oninput="update()"></div>
+      <div class="field-row"><label>पत्ता</label><textarea id="f2-addr" oninput="update()">दूरदर्शन टॉवर शेजारी, सह्याद्री नगर, सदावली, रत्नागिरी, महाराष्ट्र ४१५६०४</textarea></div>
+      <div class="field-row"><label>लेबल</label><input id="f2-label" value="द्वितीय पक्षिय" oninput="update()"></div>
+      <div class="field-row"><label>उप-लेबल</label><input id="f2-sub" value="(भाडेकरू)" oninput="update()"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">विभाजक</div>
+      <div class="field-row"><label>दोन पक्षांमधील मजकूर</label>
+        <input id="f-sep" value="– आणि –" oninput="update()"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">करार तपशील</div>
+      <div class="field-row"><label>मालमत्तेचा पत्ता</label>
+        <textarea id="f-prop" oninput="update()">रुम नं २०७, स्वपनपूर्ती बिल्डिंग नं. २३, महाराष्ट्र नगर, मानखुर्द ईस्ट, मुंबई – ४०००८८</textarea></div>
+      <div class="field-row"><label>करार तारीख</label>
+        <input id="f-date" value="" placeholder="उदा. १ जून २०२५" oninput="update()"></div>
+      <div class="field-row"><label>करार कालावधी</label>
+        <input id="f-period" value="११ महिने" oninput="update()"></div>
+      <div class="field-row"><label>मासिक भाडे (₹)</label>
+        <input id="f-rent" value="७,५०० रु." oninput="update()"></div>
+      <div class="field-row"><label>अनामत रक्कम (₹)</label>
+        <input id="f-deposit" value="१५,००० रु." oninput="update()"></div>
+    </div>
+  </div>
+
+  <div class="preview-panel">
+    <div class="panel-title">👁 A4 पूर्वावलोकन — वरचे ६०% स्टॅम्प पेपर क्षेत्र · खालचे ४०% करार मजकूर</div>
+    <div class="preview-wrapper">
+      <div id="a4-preview">
+
+        <div class="stamp-zone">
+          <div class="sz-icon">🪙</div>
+          <div class="sz-label">१०० रु. स्टॅम्प पेपर — वरचे ६०%</div>
+          <div class="sz-sub">PDF मध्ये हा भाग रिक्त (पांढरा) राहील</div>
+          <div class="sz-sub">Stamp paper occupies this area</div>
+        </div>
+
+        <div class="doc-zone">
+          <div class="doc-title" id="p-title">लिव्ह अँड लायसन्स / भाडे करारनामा</div>
+
+          <div class="party-block">
+            <div class="party-info">
+              <div class="pname" id="p1-name">सौ. दीपाली आनंदा निकम</div>
+              <div id="p1-det">वय ३६ वर्ष, भारतीय सज्ञान, व्यवसाय : गृहिणी</div>
+              <div id="p1-addr">पत्ता : रुम नं २०७, स्वपनपूर्ती बिल्डिंग नं. २३, महाराष्ट्र नगर, मानखुर्द ईस्ट, मुंबई – ४०००८८</div>
+            </div>
+            <div class="brace-side">
+              <div class="brace-sym">}</div>
+              <div class="plabel" id="p1-label">प्रथम पक्षिय</div>
+              <div class="psub" id="p1-sub">(मालक)</div>
+            </div>
+          </div>
+
+          <div class="sep-line" id="p-sep">– आणि –</div>
+
+          <div class="party-block">
+            <div class="party-info">
+              <div class="pname" id="p2-name">सौ. चैत्राली अजित गायकवाड</div>
+              <div id="p2-det">वय २८ वर्ष, भारतीय सज्ञान, व्यवसाय : व्यापारी</div>
+              <div id="p2-addr">पत्ता : दूरदर्शन टॉवर शेजारी, सह्याद्री नगर, सदावली, रत्नागिरी, महाराष्ट्र ४१५६०४</div>
+            </div>
+            <div class="brace-side">
+              <div class="brace-sym">}</div>
+              <div class="plabel" id="p2-label">द्वितीय पक्षिय</div>
+              <div class="psub" id="p2-sub">(भाडेकरू)</div>
+            </div>
+          </div>
+
+          <!-- <div class="prop-strip" id="prop-strip">
+            <div id="ps-prop">📍 मालमत्ता : रुम नं २०७, स्वपनपूर्ती बिल्डिंग नं. २३, महाराष्ट्र नगर, मानखुर्द ईस्ट, मुंबई – ४०००८८</div>
+            <div id="ps-meta">⏳ कालावधी : ११ महिने &nbsp;|&nbsp; 💰 मासिक भाडे : ७,५०० रु. &nbsp;|&nbsp; 🔒 अनामत : १५,००० रु.</div>
+          </div> -->
+
+          <div class="sig-row">
+            <div class="sig-block"><div class="sig-line-el"></div><div class="sig-lbl">प्रथम पक्षिय सही</div></div>
+            <div class="sig-block"><div class="sig-line-el"></div><div class="sig-lbl">द्वितीय पक्षिय सही</div></div>
+            <div class="sig-block"><div class="sig-line-el"></div><div class="sig-lbl">साक्षीदार सही</div></div>
+          </div>
+
+          <div class="doc-footer" id="p-footer">दिनांक :</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function g(id){return document.getElementById(id);}
+function val(id){var el=g(id);return el?el.value:'';}
+
+async function generatePDF(){
+  var overlay = g('loading-overlay');
+  overlay.classList.add('show');
+
+  // --- Collect all form values ---
+  var title = val('f-title');
+  var f1name = val('f1-name'), f1age = val('f1-age'), f1nat = val('f1-nat'),
+      f1occ = val('f1-occ'), f1addr = val('f1-addr'), 
+      f1label = val('f1-label'), f1sub = val('f1-sub');
+
+  var sep = val('f-sep');
+
+  var f2name = val('f2-name'), f2age = val('f2-age'), f2nat = val('f2-nat'),
+      f2occ = val('f2-occ'), f2addr = val('f2-addr'), 
+      f2label = val('f2-label'), f2sub = val('f2-sub');
+
+  var prop = val('f-prop'), date = val('f-date'), 
+      period = val('f-period'), rent = val('f-rent'), 
+      deposit = val('f-deposit');
+
+  // Meta info
+  var metaParts = [];
+  if(date) metaParts.push('📅 ' + date);
+  if(period) metaParts.push('⏳ ' + period);
+  if(rent) metaParts.push('💰 ' + rent + '/माह');
+  if(deposit) metaParts.push('🔒 ' + deposit);
+
+  var propHTML = '';
+  if(prop || metaParts.length > 0){
+    propHTML = '<div class="prop-strip">';
+    if(prop) propHTML += '<div>📍 मालमत्ता : ' + prop + '</div>';
+    if(metaParts.length) propHTML += '<div>' + metaParts.join(' &nbsp;|&nbsp; ') + '</div>';
+    propHTML += '</div>';
+  }
+
+  var footLine = date ? 'दिनांक : ' + date : 'दिनांक :';
+
+  // --- Full PDF HTML (Clean & Complete) ---
+  var pdfHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Crimson+Pro:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      width:794px; height:1123px; background:#fff; 
+      font-family:"Noto Sans Devanagari",serif; color:#000;
+      padding:0; margin:0;
+    }
+    .page{
+      width:794px; height:1123px; position:relative; background:#fff;
+    }
+    .top-blank{
+      position:absolute; top:0; left:0; right:0; height:60%; background:#fff;
+    }
+    .content-zone{
+      position:absolute; top:60%; left:0; right:0; bottom:0;
+      padding:26px 57px 20px 57px; display:flex; flex-direction:column;
+      border-top:3px double #000;
+    }
+    .doc-title{
+      font-family:"Crimson Pro",serif; text-align:center; 
+      font-size:16pt; font-weight:700; border-bottom:2px solid #000;
+      padding-bottom:6px; margin-bottom:10px; letter-spacing:0.5px;
+    }
+    .party-row{
+      display:flex; align-items:stretch; margin-bottom:6px;
+    }
+    .party-info{
+      flex:1; font-size:9.5pt; line-height:1.7; padding-right:6px;
+    }
+    .pname{font-weight:700; font-size:11pt;}
+    .brace-col{
+      display:flex; flex-direction:column; align-items:center; 
+      justify-content:center; width:72px; flex-shrink:0; text-align:center;
+    }
+    .brace-sym{font-size:34pt; line-height:1; font-weight:200;}
+    .plabel{font-weight:700; font-size:9.5pt; line-height:1.3;}
+    .psub{font-size:8.5pt; color:#444;}
+    .sep-line{
+      text-align:center; font-size:10.5pt; font-weight:700; 
+      letter-spacing:2px; margin:4px 0 6px;
+    }
+    .prop-strip{
+      background:#f8f3e8; border:0.75pt solid #c9a85a; 
+      border-radius:4px; padding:5px 10px; font-size:8.5pt; 
+      line-height:1.8; margin:4px 0;
+    }
+    .sig-row{
+      margin-top:auto; display:flex; justify-content:space-around; 
+      align-items:flex-end; padding-top:8px; border-top:1pt solid #bbb;
+    }
+    .sig-block{text-align:center;}
+    .sig-line{
+      width:90px; border-bottom:1.25pt solid #000; margin-bottom:3px;
+    }
+    .sig-lbl{font-size:8pt; color:#444;}
+    .footer{
+      text-align:center; font-size:8pt; color:#666; 
+      margin-top:5px; padding-top:5px; border-top:0.5pt solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top-blank"></div>
+    <div class="content-zone">
+      <div class="doc-title">${title}</div>
+      
+      <div class="party-row">
+        <div class="party-info">
+          <div class="pname">${f1name}</div>
+          <div>वय ${f1age} वर्ष, ${f1nat}, व्यवसाय : ${f1occ}</div>
+          <div>पत्ता : ${f1addr}</div>
+        </div>
+        <div class="brace-col">
+          <div class="brace-sym">}</div>
+          <div class="plabel">${f1label}</div>
+          <div class="psub">${f1sub}</div>
+        </div>
+      </div>
+
+      <div class="sep-line">${sep}</div>
+
+      <div class="party-row">
+        <div class="party-info">
+          <div class="pname">${f2name}</div>
+          <div>वय ${f2age} वर्ष, ${f2nat}, व्यवसाय : ${f2occ}</div>
+          <div>पत्ता : ${f2addr}</div>
+        </div>
+        <div class="brace-col">
+          <div class="brace-sym">}</div>
+          <div class="plabel">${f2label}</div>
+          <div class="psub">${f2sub}</div>
+        </div>
+      </div>
+
+      ${propHTML}
+
+      <div class="sig-row">
+        <div class="sig-block"><div class="sig-line"></div><div class="sig-lbl">प्रथम पक्षिय सही</div></div>
+        <div class="sig-block"><div class="sig-line"></div><div class="sig-lbl">द्वितीय पक्षिय सही</div></div>
+        <div class="sig-block"><div class="sig-line"></div><div class="sig-lbl">साक्षीदार सही</div></div>
+      </div>
+
+      <div class="footer">${footLine}</div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  // Create hidden iframe
+  var iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:794px;height:1123px;border:none;opacity:0;pointer-events:none;';
+  document.body.appendChild(iframe);
+
+  iframe.contentDocument.open();
+  iframe.contentDocument.write(pdfHTML);
+  iframe.contentDocument.close();
+
+  // Wait for fonts and rendering
+  await new Promise(r => setTimeout(r, 1800));
+
+  var opt = {
+    margin: 0,
+    filename: 'bhade-kararnama.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 3,
+      useCORS: true,
+      letterRendering: true,
+      logging: false
+    },
+    jsPDF: { 
+      unit: 'px', 
+      format: [794, 1123], 
+      orientation: 'portrait' 
+    }
+  };
+
+  try {
+    await html2pdf().set(opt).from(iframe.contentDocument.body).save();
+  } catch(e) {
+    console.error(e);
+    alert('PDF तयार करताना त्रुटी आली. कृपया पुन्हा प्रयत्न करा.');
+  }
+
+  // Cleanup
+  setTimeout(() => {
+    document.body.removeChild(iframe);
+    overlay.classList.remove('show');
+  }, 500);
+}
+
+// Initialize
+update();
+</script>
+</body>
+</html>
