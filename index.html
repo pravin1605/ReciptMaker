@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +8,7 @@
   <title>SR Enterprises</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Great+Vibes&family=Allura&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@600&family=Great+Vibes&family=Allura&display=swap" rel="stylesheet">
   <style>
     .dashboard-nav{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#1e1b4b 0%,#312e81 60%,#4338ca 100%);box-shadow:0 4px 20px rgba(0,0,0,.35);padding:0 1.5rem}
     .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:6px;height:60px}
@@ -20,7 +22,7 @@
     .nav-btn .dot{width:7px;height:7px;background:#fbbf24;border-radius:50%;flex-shrink:0}
 
     /* ── Receipt layering: white bg → watermark → content → note + signature ── */
-    .receipt-content{position:relative;overflow:hidden;background:#fff}
+    .receipt-content{position:relative;overflow:hidden;background:#fff;font-family:'Inter',system-ui,sans-serif}
     .receipt-watermark{
       position:absolute;left:50%;top:50%;
       transform:translate(-50%,-50%);
@@ -35,6 +37,8 @@
     .sig-tab.active{background:#1e1b4b;color:#fff;border-color:#1e1b4b}
     #sigCanvas{width:100%;max-width:520px;height:180px;border:2px dashed #6366f1;border-radius:12px;background:#fafafa;touch-action:none;cursor:crosshair}
     .sig-btn{padding:9px 18px;border-radius:8px;font-weight:600;font-size:14px;color:#fff}
+    .sr-stamp{position:absolute;right:222px;bottom:-2px;width:124px;height:124px;transform:rotate(-9deg);opacity:.9;mix-blend-mode:multiply;pointer-events:none;z-index:2}
+    .sr-stamp.off{display:none}
     .sr-logo{width:76px;height:76px;flex-shrink:0}
     .receipt-note{font-size:10px;line-height:1.55;text-transform:uppercase;letter-spacing:.02em;max-width:48%;text-align:left}
 
@@ -160,6 +164,9 @@
       <div class="mt-5 pt-4 border-t flex flex-wrap items-center gap-4">
         <label class="inline-flex items-center gap-2 text-sm font-medium"><input id="sigRemember" type="checkbox" checked> Remember on this device</label>
         <label class="inline-flex items-center gap-2 text-sm font-medium"><input id="sigStampOn" type="checkbox" checked onchange="refreshStamp()"> Show "Digitally signed" date &amp; time</label>
+        <label class="inline-flex items-center gap-2 text-sm font-medium"><input id="stampOn" type="checkbox" checked onchange="toggleStamp()"> Show rubber stamp</label>
+        <label class="inline-flex items-center gap-2 text-sm font-medium">Stamp size <input id="stampSize" type="range" min="80" max="160" value="124" oninput="sizeStamp()"></label>
+        <button type="button" class="sig-btn bg-blue-800" onclick="downloadStamp()">Download Stamp (SVG)</button>
         <button type="button" class="sig-btn bg-red-600" onclick="removeSignature()">Remove Signature</button>
       </div>
     </div>
@@ -252,13 +259,13 @@
             </div>
             <div class="mt-3 flex flex-row flex-nowrap justify-center gap-3 text-[10px] text-gray-700 overflow-x-auto">
               <p class="inline-flex items-center gap-1 rounded-full bg-gray-100 border border-gray-200 px-3 py-1 whitespace-nowrap"><span class="text-indigo-900 font-semibold">📍</span><span class="leading-tight">Shop NO-10, Agroli Gaon, Sec-29, CBD Belapur, Navi Mumbai 400614</span></p>
-              <p class="inline-flex items-center gap-1 rounded-full bg-green-50 border border-green-200 px-3 py-1 whitespace-nowrap"><span class="text-green-600">📞</span> +91-7021709371</p>
-              <p class="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 whitespace-nowrap"><span class="text-blue-600">✉️</span> rdinesh7021@gmail.com</p>
+              <p class="inline-flex items-center gap-1 rounded-full bg-gray-50 border border-gray-300 px-3 py-1 whitespace-nowrap"><span class="text-indigo-900">📞</span> +91-7021709371</p>
+              <p class="inline-flex items-center gap-1 rounded-full bg-gray-50 border border-gray-300 px-3 py-1 whitespace-nowrap"><span class="text-indigo-900">✉️</span> rdinesh7021@gmail.com</p>
             </div>
           </div>
 
           <div class="flex justify-between mt-3">
-            <h2 class="text-xl font-bold">INVOICE</h2>
+            <h2 class="text-xl font-extrabold tracking-[0.3em] text-indigo-900 border-b-2 border-amber-500 pb-1">INVOICE</h2>
             <div class="text-right text-xs">
               <p><strong>Invoice No :</strong> <span id="dispInvoice">6/2026</span></p>
               <p><strong>Date :</strong> <span id="dispDate">05/05/2026</span></p>
@@ -273,9 +280,9 @@
             <p class="text-xs" id="dispAddr3">NAVI MUMBAI 400614</p>
           </div>
 
-          <table class="w-full mt-3 border border-black text-xs">
+          <table class="w-full mt-4 border border-indigo-900 text-xs">
             <thead>
-              <tr class="bg-gray-100">
+              <tr class="bg-indigo-900 text-white tracking-wider">
                 <th class="border border-black p-2 text-left">PARTICULARS</th>
                 <th class="border border-black p-2 text-center">FLAT NO</th>
                 <th class="border border-black p-2 text-right">AMOUNT</th>
@@ -291,28 +298,73 @@
           </table>
 
           <div class="flex justify-end mt-3">
-            <div class="text-right">
-              <p class="text-sm font-bold">TOTAL AMOUNT</p>
-              <p class="text-lg font-bold" id="dispTotal">Rs. 54,000/-</p>
+            <div class="text-right border-2 border-indigo-900 rounded-md px-5 py-2 bg-white/70">
+              <p class="text-[11px] font-bold tracking-widest text-indigo-900">TOTAL AMOUNT</p>
+              <p class="text-xl font-extrabold" id="dispTotal">Rs. 54,000/-</p>
             </div>
           </div>
 
-          <div class="mt-2 text-xs">
-            <strong>Amount in words :</strong>
+          <div class="mt-3 text-xs border-l-4 border-amber-500 bg-gray-50/80 px-3 py-2">
+            <strong class="text-indigo-900">Amount in words :</strong>
             <span id="dispWords" class="italic block mt-1">Fifty Four Thousand Only</span>
           </div>
 
           <!-- LAYER 3: Permanent NOTE (bottom-left, CAPS) + Signature (bottom-right) -->
-          <div class="mt-6 flex justify-between items-end">
+          <div class="mt-8 pt-3 border-t border-gray-300 flex justify-between items-end">
             <div class="receipt-note">
               <p class="font-bold">NOTE:</p>
-              <p>KINDLY ISSUE CHEQUE IN FAVOUR OF SUNIL ROKADE.</p>
+              <p>KINDLY ISSUE CHEQUE IN FAVOUR OF <b>SUNIL ROKADE</b>.</p>
               <p>THANK YOU FOR YOUR BUSINESS!</p>
             </div>
-            <div class="text-center">
-              <div class="w-44 h-14 border-b-2 border-black flex items-end justify-center overflow-hidden"><img id="sigImg" alt="Signature" class="hidden max-h-full max-w-full object-contain" style="mix-blend-mode:multiply"></div>
-              <p class="font-bold text-xs mt-1">FOR S R ENTERPRISES</p>
-              <p class="text-xs">PROPRIETOR / AUTHORIZED SIGNATORY</p>
+            <div class="text-center relative">
+              <svg id="srStamp" class="sr-stamp" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="S R Enterprises rubber stamp">
+                <defs>
+                  <path id="stArcTop" d="M32 100A68 68 0 0 1 168 100"/>
+                  <path id="stArcBot" d="M21 100A79 79 0 0 0 179 100"/>
+                  <!-- rubber-stamp ink texture: rough edges + speckled ink + uneven pressure -->
+                  <filter id="stInk" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="4" result="warp"/>
+                    <feDisplacementMap in="SourceGraphic" in2="warp" scale="2.4" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+                    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="9" result="grain"/>
+                    <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3 2.85" result="speck"/>
+                    <feComposite in="rough" in2="speck" operator="in" result="grainy"/>
+                    <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="21" result="press"/>
+                    <feColorMatrix in="press" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.5 0.2" result="pressA"/>
+                    <feComposite in="grainy" in2="pressA" operator="in"/>
+                  </filter>
+                </defs>
+                <g filter="url(#stInk)" fill="#1F3FAE" stroke="#1F3FAE" stroke-linejoin="round" stroke-linecap="round">
+                  <!-- borders -->
+                  <circle cx="100" cy="100" r="95" fill="none" stroke-width="4.5"/>
+                  <circle cx="100" cy="100" r="89" fill="none" stroke-width="1.3"/>
+                  <circle cx="100" cy="100" r="58" fill="none" stroke-width="2.6"/>
+                  <circle cx="100" cy="100" r="54.5" fill="none" stroke-width="1"/>
+                  <!-- perimeter text -->
+                  <text font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="15.5" letter-spacing="1.6" stroke="none" text-anchor="middle"><textPath href="#stArcTop" startOffset="50%">S R ENTERPRISES</textPath></text>
+                  <text font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="9.6" letter-spacing="1" stroke="none" text-anchor="middle"><textPath href="#stArcBot" startOffset="50%">SALE • RENT • PURCHASE • PLOT</textPath></text>
+                  <!-- side separators -->
+                  <path d="M17 100l4-4 4 4-4 4z M175 100l4-4 4 4-4 4z" stroke="none"/>
+                  <!-- central multi-storey building -->
+                  <path d="M88 58V49H112V58" fill="none" stroke-width="2.4"/>
+                  <path d="M65 58H135" fill="none" stroke-width="3.4"/>
+                  <rect x="71" y="58" width="58" height="55" fill="none" stroke-width="2.6"/>
+                  <path d="M71 72H129M71 86H129M71 100H129" fill="none" stroke-width="1.6"/>
+                  <path d="M96 58V100M104 58V100" fill="none" stroke-width="1.2"/>
+                  <g stroke="none">
+                    <rect x="76" y="62" width="8" height="7"/><rect x="87" y="62" width="6" height="7"/><rect x="107" y="62" width="6" height="7"/><rect x="116" y="62" width="8" height="7"/>
+                    <rect x="76" y="76" width="8" height="7"/><rect x="87" y="76" width="6" height="7"/><rect x="107" y="76" width="6" height="7"/><rect x="116" y="76" width="8" height="7"/>
+                    <rect x="76" y="90" width="8" height="7"/><rect x="87" y="90" width="6" height="7"/><rect x="107" y="90" width="6" height="7"/><rect x="116" y="90" width="8" height="7"/>
+                  </g>
+                  <path d="M93 113V101H107V113" fill="none" stroke-width="2.4"/>
+                  <path d="M60 113H140" fill="none" stroke-width="3.4"/>
+                  <!-- SR monogram -->
+                  <path d="M66 129H84M116 129H134" fill="none" stroke-width="1.4"/>
+                  <text x="100" y="140" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="21" letter-spacing="2" text-anchor="middle" stroke="none">SR</text>
+                </g>
+              </svg>
+              <div class="w-52 h-20 border-b-2 border-indigo-900 flex items-end justify-center overflow-hidden"><img id="sigImg" alt="Signature" class="hidden max-h-full max-w-full object-contain" style="mix-blend-mode:multiply;filter:contrast(1.25) saturate(1.2)"></div>
+              <p class="font-bold text-xs mt-1 text-indigo-900">FOR S R ENTERPRISES</p>
+              <p class="text-[10px] tracking-wide text-gray-600">PROPRIETOR / AUTHORIZED SIGNATORY</p>
               <p id="sigStamp" class="hidden text-[8px] text-gray-500 mt-0.5"></p>
             </div>
           </div>
@@ -378,7 +430,7 @@
     const ctx = canvas.getContext('2d');
     let drawing = false, hasInk = false;
 
-    ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#0b1b5e';
+    ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#0a1a6e';
 
     function pos(e) {
       const r = canvas.getBoundingClientRect();
@@ -476,7 +528,7 @@
       const font = document.getElementById('sigFont').value;
       try { await document.fonts.load(`80px '${font}'`); } catch (e) {}
       const c = document.createElement('canvas'); c.width = 1000; c.height = 260;
-      const x = c.getContext('2d'); x.font = `110px '${font}', cursive`; x.fillStyle = '#0b1b5e';
+      const x = c.getContext('2d'); x.font = `110px '${font}', cursive`; x.fillStyle = '#0a1a6e';
       x.textBaseline = 'middle'; x.fillText(txt, 20, 130);
       applySignature(trimCanvas(c));
     }
@@ -496,6 +548,17 @@
           const img = document.getElementById('sigImg'); img.src = sigData; img.classList.remove('hidden'); refreshStamp();
         }
       } catch (e) {}
+    }
+
+    /* ═══════ RUBBER STAMP ═══════ */
+    function toggleStamp() { document.getElementById('srStamp').classList.toggle('off', !document.getElementById('stampOn').checked); }
+    function sizeStamp() { const v = document.getElementById('stampSize').value + 'px', st = document.getElementById('srStamp'); st.style.width = v; st.style.height = v; }
+    function downloadStamp() {
+      const svg = document.getElementById('srStamp').cloneNode(true);
+      svg.removeAttribute('class'); svg.removeAttribute('style'); svg.setAttribute('width', '600'); svg.setAttribute('height', '600');
+      const blob = new Blob([new XMLSerializer().serializeToString(svg)], { type: 'image/svg+xml' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'SR_Enterprises_Stamp.svg'; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     }
 
     window.onload = () => { generateReceipt(); loadSavedSignature(); };
