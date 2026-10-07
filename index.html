@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,20 +35,49 @@
     .sig-tab.active{background:#1e1b4b;color:#fff;border-color:#1e1b4b}
     #sigCanvas{width:100%;max-width:520px;height:180px;border:2px dashed #6366f1;border-radius:12px;background:#fafafa;touch-action:none;cursor:crosshair}
     .sig-btn{padding:9px 18px;border-radius:8px;font-weight:600;font-size:14px;color:#fff}
+    /* ── Attractive polish ── */
+    body.bg-gray-100{background:linear-gradient(180deg,#eef2ff 0%,#f8fafc 45%,#e0e7ff 100%);min-height:100vh}
+    h1.no-print{background:linear-gradient(90deg,#1e1b4b,#4338ca 70%,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.01em}
+    .rounded-2xl.shadow-lg{border:1px solid #e0e7ff;border-top:4px solid #4338ca;box-shadow:0 12px 32px rgba(49,46,129,.10)}
+    label.block{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:#4338ca;font-weight:700}
+    input:not([type=checkbox]):not([type=range]):not([type=file]),select,textarea{background:#f9fafb;transition:border-color .15s,box-shadow .15s,background .15s}
+    input:not([type=checkbox]):not([type=range]):not([type=file]):focus,select:focus,textarea:focus{outline:none;background:#fff;border-color:#4f46e5!important;box-shadow:0 0 0 4px rgba(79,70,229,.15)}
+    .bg-green-600{background:linear-gradient(135deg,#059669,#10b981)}
+    .bg-black{background:linear-gradient(135deg,#1e1b4b,#4338ca)}
+    button{transition:transform .12s,box-shadow .12s,filter .12s}
+    button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+    .receipt-content{border-color:#1e1b4b!important}
+    .rc-band{margin:-16px -16px 12px;height:12px;background:linear-gradient(90deg,#1e1b4b,#4338ca 60%,#f59e0b)}
+    .rc-foot{position:relative;z-index:1;margin:18px -16px -16px;height:30px;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,#1e1b4b,#312e81 60%,#4338ca);color:#fde68a;font-size:9px;font-weight:700;letter-spacing:.32em}
+    .rc-head{background:linear-gradient(180deg,#eef2ff,rgba(255,255,255,0));border-radius:10px 10px 0 0;padding-top:10px}
+    thead th{padding:9px 8px!important;border-color:#312e81!important;font-size:11px;letter-spacing:.1em}
+    tbody td{padding:11px 8px!important;border-color:#c7d2fe!important;background:rgba(238,242,255,.45)}
+    .total-box{background:linear-gradient(135deg,#1e1b4b,#4338ca);border:2px solid #fbbf24;border-radius:10px;padding:8px 22px}
+    .total-box p{color:#fff!important}
+    .total-box #dispTotal{color:#fde68a!important}
+    .sr-logo{filter:drop-shadow(0 3px 5px rgba(30,27,75,.35))}
     .sr-stamp{position:absolute;right:222px;bottom:-2px;width:124px;height:124px;transform:rotate(-9deg);opacity:.9;mix-blend-mode:multiply;pointer-events:none;z-index:2}
     .sr-stamp.off{display:none}
+    .sr-stamp{pointer-events:auto!important;cursor:grab;touch-action:none;outline:1.5px dashed rgba(99,102,241,.55);outline-offset:2px}
+    .sr-stamp.dragging{cursor:grabbing}
+    .ctl-row{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13px;font-weight:500}
+    .ctl-row span.lbl{width:64px;color:#374151}
+    .ctl-row input[type=range]{flex:1}
+    .ctl-row output{width:52px;text-align:right;font-variant-numeric:tabular-nums;color:#4338ca;font-weight:700}
+    .preset-btn{padding:6px 14px;border-radius:8px;border:2px solid #c7d2fe;background:#eef2ff;color:#1e1b4b;font-weight:600;font-size:13px}
+    .preset-btn:hover{background:#1e1b4b;color:#fff}
     .sr-logo{width:76px;height:76px;flex-shrink:0}
     .receipt-note{font-size:10px;line-height:1.55;text-transform:uppercase;letter-spacing:.02em;max-width:48%;text-align:left}
 
-    .print-area{width:800px;margin:20px auto;border:2px solid #000;background:#fff;padding:20px;box-shadow:0 0 15px rgba(0,0,0,.15)}
+    .print-area{width:800px;margin:20px auto;border:4px double #1e1b4b;background:#fff;padding:20px;box-shadow:0 0 15px rgba(0,0,0,.15)}
     @media print{
       @page{size:A4 portrait;margin:0}
       *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
       html,body{height:auto;margin:0;padding:0}
       .no-print{display:none!important}
-      .print-area{width:100%;max-width:8.5in;height:auto;margin:0;padding:8px;box-shadow:none;border:2px solid #000;page-break-after:avoid;page-break-inside:avoid}
+      .print-area{width:100%;max-width:8.5in;height:auto;margin:0;padding:8px;box-shadow:none;border:4px double #1e1b4b;page-break-after:avoid;page-break-inside:avoid}
       table{page-break-inside:avoid}
-      .receipt-watermark{opacity:.12!important}
+      .sr-stamp{outline:none!important}
     }
     @media (max-width:700px){
       .nav-btn span{display:none}.nav-btn{padding:7px 10px}.nav-brand{font-size:13px}.print-area{width:100%}
@@ -164,10 +191,37 @@
       <div class="mt-5 pt-4 border-t flex flex-wrap items-center gap-4">
         <label class="inline-flex items-center gap-2 text-sm font-medium"><input id="sigRemember" type="checkbox" checked> Remember on this device</label>
         <label class="inline-flex items-center gap-2 text-sm font-medium"><input id="sigStampOn" type="checkbox" checked onchange="refreshStamp()"> Show "Digitally signed" date &amp; time</label>
-        <label class="inline-flex items-center gap-2 text-sm font-medium"><input id="stampOn" type="checkbox" checked onchange="toggleStamp()"> Show rubber stamp</label>
-        <label class="inline-flex items-center gap-2 text-sm font-medium">Stamp size <input id="stampSize" type="range" min="80" max="160" value="124" oninput="sizeStamp()"></label>
-        <button type="button" class="sig-btn bg-blue-800" onclick="downloadStamp()">Download Stamp (SVG)</button>
         <button type="button" class="sig-btn bg-red-600" onclick="removeSignature()">Remove Signature</button>
+      </div>
+    </div>
+
+    <!-- Watermark + Stamp controls -->
+    <div class="no-print grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white p-6 rounded-2xl shadow-lg">
+        <h2 class="text-lg font-bold mb-1"><i class="fa-solid fa-building-columns text-indigo-900"></i> Watermark Controls</h2>
+        <label class="inline-flex items-center gap-2 text-sm font-medium mt-2"><input id="wmOn" type="checkbox" checked onchange="wmChange()"> Show watermark</label>
+        <div class="flex gap-2 mt-3">
+          <button type="button" class="preset-btn" onclick="wmPreset(0.07)">Light</button>
+          <button type="button" class="preset-btn" onclick="wmPreset(0.12)">Medium</button>
+          <button type="button" class="preset-btn" onclick="wmPreset(0.20)">Strong</button>
+        </div>
+        <div class="ctl-row"><span class="lbl">Opacity</span><input id="wmOp" type="range" min="0.03" max="0.30" step="0.01" value="0.12" oninput="wmChange()"><output id="wmOpV"></output></div>
+        <div class="ctl-row"><span class="lbl">Size</span><input id="wmSize" type="range" min="250" max="720" step="10" value="480" oninput="wmChange()"><output id="wmSizeV"></output></div>
+        <div class="ctl-row"><span class="lbl">Left / Right</span><input id="wmX" type="range" min="20" max="80" value="50" oninput="wmChange()"><output id="wmXV"></output></div>
+        <div class="ctl-row"><span class="lbl">Up / Down</span><input id="wmY" type="range" min="20" max="80" value="50" oninput="wmChange()"><output id="wmYV"></output></div>
+        <button type="button" class="sig-btn bg-gray-600 mt-4" onclick="wmReset()">Reset Watermark</button>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow-lg">
+        <h2 class="text-lg font-bold mb-1"><i class="fa-solid fa-stamp text-indigo-900"></i> Stamp Controls</h2>
+        <p class="text-xs text-gray-500">Drag the stamp on the receipt to move it.</p>
+        <label class="inline-flex items-center gap-2 text-sm font-medium mt-2"><input id="stOn" type="checkbox" checked onchange="stChange()"> Show rubber stamp</label>
+        <div class="ctl-row"><span class="lbl">Size</span><input id="stSize" type="range" min="70" max="200" value="124" oninput="stChange()"><output id="stSizeV"></output></div>
+        <div class="ctl-row"><span class="lbl">Rotate</span><input id="stRot" type="range" min="-60" max="60" value="-9" oninput="stChange()"><output id="stRotV"></output></div>
+        <div class="flex flex-wrap gap-2 mt-4">
+          <button type="button" class="sig-btn bg-gray-600" onclick="stReset()">Reset Stamp</button>
+          <button type="button" class="sig-btn bg-blue-800" onclick="downloadStamp()">Download Stamp (SVG)</button>
+        </div>
       </div>
     </div>
 
@@ -233,7 +287,8 @@
 
         <!-- LAYER 2: Invoice content -->
         <div class="receipt-foreground">
-          <div class="text-center border-b-4 border-double border-indigo-900 pb-4">
+          <div class="rc-band"></div>
+          <div class="rc-head text-center border-b-4 border-double border-indigo-900 pb-4">
             <div class="inline-flex items-center justify-center px-4 py-2 bg-indigo-900 text-white rounded-full text-[10px] font-bold tracking-[0.24em] uppercase mb-3">Official Receipt</div>
             <div class="flex items-center justify-center gap-4">
               <!-- Real-estate logo -->
@@ -298,7 +353,7 @@
           </table>
 
           <div class="flex justify-end mt-3">
-            <div class="text-right border-2 border-indigo-900 rounded-md px-5 py-2 bg-white/70">
+            <div class="total-box text-right">
               <p class="text-[11px] font-bold tracking-widest text-indigo-900">TOTAL AMOUNT</p>
               <p class="text-xl font-extrabold" id="dispTotal">Rs. 54,000/-</p>
             </div>
@@ -369,6 +424,7 @@
             </div>
           </div>
         </div>
+          <div class="rc-foot">SALE &bull; RENT &bull; PURCHASE &bull; PLOT</div>
 
       </div>
     </div>
@@ -550,18 +606,70 @@
       } catch (e) {}
     }
 
-    /* ═══════ RUBBER STAMP ═══════ */
-    function toggleStamp() { document.getElementById('srStamp').classList.toggle('off', !document.getElementById('stampOn').checked); }
-    function sizeStamp() { const v = document.getElementById('stampSize').value + 'px', st = document.getElementById('srStamp'); st.style.width = v; st.style.height = v; }
+    /* ═══════ WATERMARK + STAMP CONTROLS ═══════ */
+    const WM_KEY = 'sr_wm_v1', ST_KEY = 'sr_stamp_v2';
+    const WM_DEF = { on: true, op: 0.12, size: 480, x: 50, y: 50 };
+    const ST_DEF = { on: true, size: 124, rot: -9, dx: 0, dy: 0 };
+    let wm = { ...WM_DEF }, st = { ...ST_DEF };
+    const $ = id => document.getElementById(id);
+    function lsLoad(k, d) { try { return { ...d, ...(JSON.parse(localStorage.getItem(k) || 'null') || {}) }; } catch (e) { return { ...d }; } }
+    function lsSave(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+    function renderWM() {
+      const el = document.querySelector('.receipt-watermark');
+      el.style.display = wm.on ? '' : 'none';
+      el.style.opacity = wm.op; el.style.maxWidth = 'none';
+      el.style.width = el.style.height = wm.size + 'px';
+      el.style.left = wm.x + '%'; el.style.top = wm.y + '%';
+      $('wmOn').checked = wm.on; $('wmOp').value = wm.op; $('wmSize').value = wm.size; $('wmX').value = wm.x; $('wmY').value = wm.y;
+      $('wmOpV').textContent = Math.round(wm.op * 100) + '%'; $('wmSizeV').textContent = wm.size + 'px';
+      $('wmXV').textContent = wm.x + '%'; $('wmYV').textContent = wm.y + '%';
+    }
+    function wmChange() {
+      wm = { on: $('wmOn').checked, op: parseFloat($('wmOp').value), size: parseInt($('wmSize').value), x: parseInt($('wmX').value), y: parseInt($('wmY').value) };
+      renderWM(); lsSave(WM_KEY, wm);
+    }
+    function wmPreset(v) { wm.op = v; renderWM(); lsSave(WM_KEY, wm); }
+    function wmReset() { wm = { ...WM_DEF }; renderWM(); lsSave(WM_KEY, wm); }
+
+    function renderStamp() {
+      const el = $('srStamp');
+      el.classList.toggle('off', !st.on);
+      el.style.width = el.style.height = st.size + 'px';
+      el.style.transform = `translate(${st.dx}px, ${st.dy}px) rotate(${st.rot}deg)`;
+      $('stOn').checked = st.on; $('stSize').value = st.size; $('stRot').value = st.rot;
+      $('stSizeV').textContent = st.size + 'px'; $('stRotV').textContent = st.rot + '°';
+    }
+    function stChange() {
+      st.on = $('stOn').checked; st.size = parseInt($('stSize').value); st.rot = parseInt($('stRot').value);
+      renderStamp(); lsSave(ST_KEY, st);
+    }
+    function stReset() { st = { ...ST_DEF }; renderStamp(); lsSave(ST_KEY, st); }
+
+    // drag to move the stamp
+    (function () {
+      const el = $('srStamp'); let sx, sy, dx0, dy0, active = false;
+      el.addEventListener('pointerdown', e => {
+        active = true; sx = e.clientX; sy = e.clientY; dx0 = st.dx; dy0 = st.dy;
+        el.setPointerCapture(e.pointerId); el.classList.add('dragging'); e.preventDefault();
+      });
+      el.addEventListener('pointermove', e => {
+        if (!active) return;
+        st.dx = Math.round(dx0 + e.clientX - sx); st.dy = Math.round(dy0 + e.clientY - sy); renderStamp();
+      });
+      const end = () => { if (!active) return; active = false; el.classList.remove('dragging'); lsSave(ST_KEY, st); };
+      el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+    })();
+
     function downloadStamp() {
-      const svg = document.getElementById('srStamp').cloneNode(true);
+      const svg = $('srStamp').cloneNode(true);
       svg.removeAttribute('class'); svg.removeAttribute('style'); svg.setAttribute('width', '600'); svg.setAttribute('height', '600');
       const blob = new Blob([new XMLSerializer().serializeToString(svg)], { type: 'image/svg+xml' });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'SR_Enterprises_Stamp.svg'; a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     }
 
-    window.onload = () => { generateReceipt(); loadSavedSignature(); };
+    window.onload = () => { generateReceipt(); loadSavedSignature(); wm = lsLoad(WM_KEY, WM_DEF); st = lsLoad(ST_KEY, ST_DEF); renderWM(); renderStamp(); };
 
   </script>
 </body>
