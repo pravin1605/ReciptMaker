@@ -6,357 +6,280 @@
   <title>SR Enterprises</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  
   <style>
-    /* ── Dashboard Nav ── */
-    .dashboard-nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.35);
-      padding: 0 1.5rem;
-    }
-    .nav-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      height: 60px;
-    }
-    .nav-brand {
-      font-size: 15px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 0.04em;
-      margin-right: 18px;
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .nav-brand span {
-      color: #fbbf24;
-    }
-    .nav-divider {
-      width: 1px;
-      height: 28px;
-      background: rgba(255,255,255,0.2);
-      margin-right: 10px;
-    }
-    .nav-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 7px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.80);
-      background: transparent;
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: all 0.18s;
-      text-decoration: none;
-      white-space: nowrap;
-      letter-spacing: 0.01em;
-    }
-    .nav-btn:hover {
-      background: rgba(255,255,255,0.12);
-      color: #fff;
-      border-color: rgba(255,255,255,0.18);
-    }
-    .nav-btn.active {
-      background: rgba(255,255,255,0.18);
-      color: #fff;
-      border-color: rgba(255,255,255,0.28);
-    }
-    .nav-btn i {
-      font-size: 15px;
-      flex-shrink: 0;
-    }
-    /* badge dot on Note button */
-    .nav-btn .dot {
-      width: 7px;
-      height: 7px;
-      background: #fbbf24;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
+    .dashboard-nav{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#1e1b4b 0%,#312e81 60%,#4338ca 100%);box-shadow:0 4px 20px rgba(0,0,0,.35);padding:0 1.5rem}
+    .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:6px;height:60px}
+    .nav-brand{font-size:15px;font-weight:700;color:#fff;letter-spacing:.04em;margin-right:18px;white-space:nowrap;display:flex;align-items:center;gap:8px}
+    .nav-brand span{color:#fbbf24}
+    .nav-divider{width:1px;height:28px;background:rgba(255,255,255,.2);margin-right:10px}
+    .nav-btn{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;color:rgba(255,255,255,.8);background:transparent;border:1px solid transparent;cursor:pointer;transition:all .18s;text-decoration:none;white-space:nowrap;letter-spacing:.01em}
+    .nav-btn:hover{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.18)}
+    .nav-btn.active{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.28)}
+    .nav-btn i{font-size:15px;flex-shrink:0}
+    .nav-btn .dot{width:7px;height:7px;background:#fbbf24;border-radius:50%;flex-shrink:0}
 
-    /* ── Print / Receipt styles ── */
-    .print-area {
-      width: 800px;
-      margin: 20px auto;
-      border: 2px solid #000;
-      background: white;
-      padding: 20px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    /* ── Receipt layering: white bg → watermark → content → note + signature ── */
+    .receipt-content{position:relative;overflow:hidden;background:#fff}
+    .receipt-watermark{
+      position:absolute;left:50%;top:50%;
+      transform:translate(-50%,-50%);
+      width:480px;height:480px;max-width:92%;
+      opacity:.12;               /* visible but readable */
+      pointer-events:none;z-index:0;
     }
-    @media print {
-      @page { size: A4 portrait; margin: 0; }
-      * { -webkit-print-color-adjust: exact; color-adjust: exact; }
-      html, body { height: auto; margin: 0; padding: 0; }
-      .no-print { display: none !important; }
-      .print-area {
-        width: 100%;
-        max-width: 8.5in;
-        height: auto;
-        margin: 0;
-        padding: 8px;
-        box-shadow: none;
-        border: 2px solid #000;
-        page-break-after: avoid;
-        page-break-inside: avoid;
-      }
-      body { padding: 0; margin: 0; }
-      table { page-break-inside: avoid; }
-    }
+    .receipt-watermark svg{width:100%;height:100%;display:block}
+    .receipt-foreground{position:relative;z-index:1}
 
-    @media (max-width: 700px) {
-      .nav-btn span { display: none; }
-      .nav-btn { padding: 7px 10px; }
-      .nav-brand { font-size: 13px; }
-      .print-area { width: 100%; }
+    .sr-logo{width:76px;height:76px;flex-shrink:0}
+    .receipt-note{font-size:10px;line-height:1.55;text-transform:uppercase;letter-spacing:.02em;max-width:48%;text-align:left}
+
+    .print-area{width:800px;margin:20px auto;border:2px solid #000;background:#fff;padding:20px;box-shadow:0 0 15px rgba(0,0,0,.15)}
+    @media print{
+      @page{size:A4 portrait;margin:0}
+      *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      html,body{height:auto;margin:0;padding:0}
+      .no-print{display:none!important}
+      .print-area{width:100%;max-width:8.5in;height:auto;margin:0;padding:8px;box-shadow:none;border:2px solid #000;page-break-after:avoid;page-break-inside:avoid}
+      table{page-break-inside:avoid}
+      .receipt-watermark{opacity:.12!important}
+    }
+    @media (max-width:700px){
+      .nav-btn span{display:none}.nav-btn{padding:7px 10px}.nav-brand{font-size:13px}.print-area{width:100%}
     }
   </style>
 </head>
 <body class="bg-gray-100">
 
-  <!-- ══════════ DASHBOARD NAV ══════════ -->
   <nav class="dashboard-nav no-print">
     <div class="nav-inner">
-      <!-- Brand -->
-      <div class="nav-brand">
-        <i class="fa-solid fa-building"></i>
-        SR&nbsp;<span>ENTERPRISES</span>
-      </div>
+      <div class="nav-brand"><i class="fa-solid fa-building"></i>SR&nbsp;<span>ENTERPRISES</span></div>
       <div class="nav-divider"></div>
-
-      <!-- 1. Home (active on this page) -->
-      <a href="index.html" class="nav-btn active" title="Home – Receipt Generator">
-        <i class="fa-solid fa-house"></i>
-        <span>Home</span>
-      </a>
-
-      <!-- 2. Form -->
-      <a href="form.html" class="nav-btn" title="Customer Form">
-        <i class="fa-solid fa-file-pen"></i>
-        <span>Form</span>
-      </a>
-
-      <!-- 3. Rent Agreement -->
-      <a href="rent_agrement.html" class="nav-btn" title="Rent Agreement">
-        <i class="fa-solid fa-file-contract"></i>
-        <span>Rent Agreement</span>
-      </a>
-
-      <!-- 4. NOC Form -->
-      <a href="noc_form.html" class="nav-btn" title="NOC Form">
-        <i class="fa-solid fa-stamp"></i>
-        <span>NOC Form</span>
-      </a>
-
-      <!-- 5. Note -->
-      <a href="note.html" class="nav-btn" title="Note / Remarks">
-        <i class="fa-solid fa-note-sticky"></i>
-        <span>Note</span>
-        <span class="dot"></span>
-      </a>
+      <a href="index.html" class="nav-btn active" title="Home – Receipt Generator"><i class="fa-solid fa-house"></i><span>Home</span></a>
+      <a href="form.html" class="nav-btn" title="Customer Form"><i class="fa-solid fa-file-pen"></i><span>Form</span></a>
+      <a href="rent_agrement.html" class="nav-btn" title="Rent Agreement"><i class="fa-solid fa-file-contract"></i><span>Rent Agreement</span></a>
+      <a href="noc_form.html" class="nav-btn" title="NOC Form"><i class="fa-solid fa-stamp"></i><span>NOC Form</span></a>
+      <a href="note.html" class="nav-btn" title="Note / Remarks"><i class="fa-solid fa-note-sticky"></i><span>Note</span><span class="dot"></span></a>
     </div>
   </nav>
 
-  <!-- ══════════ MAIN CONTENT ══════════ -->
   <div class="max-w-5xl mx-auto py-8 px-4">
     <h1 class="text-3xl font-bold text-center mb-8 no-print">SR Enterprises - Dynamic Receipt Generator</h1>
 
-    <!-- Input Form -->
     <div class="no-print bg-white p-8 rounded-2xl shadow-lg mb-10">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
         <div class="md:col-span-2">
           <label class="block font-medium mb-1">Invoice Number</label>
-          <input id="invoiceNo" type="text" value="6/2026" 
-                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+          <input id="invoiceNo" type="text" value="6/2026" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
         </div>
-
         <div>
           <label class="block font-medium mb-1">Date</label>
-          <input id="date" type="date" value="2026-05-05" 
-                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+          <input id="date" type="date" value="2026-05-05" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
         </div>
-
         <div>
           <label class="block font-medium mb-1">Customer Name</label>
-          <input id="customerName" type="text" value="MR. NANDAN NAMBIAR" 
-                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+          <input id="customerName" type="text" value="MR. NANDAN NAMBIAR" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
         </div>
-
         <div>
           <label class="block font-medium mb-1">Type</label>
           <select id="type" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
-            <option value="Rent">Rent</option>
-            <option value="Sale">Sale</option>
-            <option value="Purchase">Purchase</option>
-            <option value="Plot">Plot</option>
+            <option value="Rent">Rent</option><option value="Sale">Sale</option><option value="Purchase">Purchase</option><option value="Plot">Plot</option>
           </select>
         </div>
-
-        <!-- Address Fields -->
         <div class="md:col-span-2">
           <label class="block font-medium mb-1">Address Line 1</label>
-          <input id="address1" type="text" value="BANK OF MAHARASHTRA" 
-                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+          <input id="address1" type="text" value="BANK OF MAHARASHTRA" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
         </div>
         <div>
           <label class="block font-medium mb-1">Address Line 2</label>
-          <input id="address2" type="text" value="SECTOR-1, CBD BELAPUR" 
-                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+          <input id="address2" type="text" value="SECTOR-1, CBD BELAPUR" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
         </div>
         <div>
           <label class="block font-medium mb-1">City & Pincode</label>
-          <input id="address3" type="text" value="NAVI MUMBAI 400614" 
-                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+          <input id="address3" type="text" value="NAVI MUMBAI 400614" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
         </div>
-
         <div class="md:col-span-2">
           <label class="block font-medium mb-1">Flat / Property Details</label>
           <textarea id="flatDetails" rows="3" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">Flat No. 403, Ratan Vallabh Vihar CHS, Sector-20, CBD Belapur, Navi Mumbai</textarea>
         </div>
-
         <div>
           <label class="block font-medium mb-1">Flat Number (Short)</label>
-          <input id="flatNo" type="text" value="403" 
-                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
+          <input id="flatNo" type="text" value="403" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3">
         </div>
-
         <div>
           <label class="block font-medium mb-1">Rent Amount (₹)</label>
-          <input id="amount" type="number" value="54000" 
-                 class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-xl">
+          <input id="amount" type="number" value="54000" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-xl">
         </div>
       </div>
-
       <div class="text-center mt-8">
-        <button onclick="generateReceipt()" 
-                class="bg-green-600 hover:bg-green-700 text-white text-xl font-semibold px-10 py-4 rounded-xl">
-          Generate Receipt
-        </button>
+        <button onclick="generateReceipt()" class="bg-green-600 hover:bg-green-700 text-white text-xl font-semibold px-10 py-4 rounded-xl">Generate Receipt</button>
       </div>
     </div>
 
     <!-- Receipt -->
     <div id="receiptPreview" class="print-area mx-auto">
-      <div class="border-2 border-black p-4">
-        <!-- Header -->
-        <div class="text-center border-b-2 border-gray-300 pb-4">
-          <div class="inline-flex items-center justify-center px-4 py-2 bg-indigo-900 text-white rounded-full text-[10px] font-bold tracking-[0.24em] uppercase mb-3">
-            Official Receipt
+      <div class="border-2 border-black p-4 receipt-content">
+
+        <!-- LAYER 1: Architectural building watermark + SR emblem -->
+        <div class="receipt-watermark" aria-hidden="true">
+          <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#111827" stroke-linejoin="round" stroke-linecap="round">
+            <defs>
+              <!-- one floor of symmetrical windows (shifted down with <use>) -->
+              <g id="winRow" stroke-width="3.5">
+                <rect x="134" y="0" width="32" height="38"/><rect x="194" y="0" width="32" height="38"/>
+                <rect x="274" y="0" width="32" height="38"/><rect x="334" y="0" width="32" height="38"/>
+                <line x1="150" y1="0" x2="150" y2="38" stroke-width="1.5"/><line x1="210" y1="0" x2="210" y2="38" stroke-width="1.5"/>
+                <line x1="290" y1="0" x2="290" y2="38" stroke-width="1.5"/><line x1="350" y1="0" x2="350" y2="38" stroke-width="1.5"/>
+                <rect x="238" y="0" width="24" height="38"/>
+              </g>
+            </defs>
+
+            <!-- crown / top tier -->
+            <path d="M175 100V62H325V100" stroke-width="6"/>
+            <path d="M160 62H340" stroke-width="7"/>
+            <path d="M235 62L250 40L265 62" stroke-width="5"/>
+            <!-- roof cornice -->
+            <path d="M92 100H408" stroke-width="9"/>
+            <path d="M100 112H400" stroke-width="3.5"/>
+            <!-- main body -->
+            <rect x="110" y="100" width="280" height="340" stroke-width="7"/>
+            <!-- columns / pilasters -->
+            <line x1="120" y1="112" x2="120" y2="440" stroke-width="5"/>
+            <line x1="380" y1="112" x2="380" y2="440" stroke-width="5"/>
+            <line x1="180" y1="170" x2="180" y2="380" stroke-width="3"/><line x1="320" y1="170" x2="320" y2="380" stroke-width="3"/>
+            <!-- floor separation lines -->
+            <path d="M110 170H390M110 240H390M110 310H390M110 380H390" stroke-width="5"/>
+
+            <!-- SR emblem (top floor, centre) -->
+            <circle cx="250" cy="141" r="27" stroke-width="5"/>
+            <circle cx="250" cy="141" r="21" stroke-width="1.8"/>
+            <text x="250" y="150" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="25" font-weight="700" fill="#111827" stroke="none" letter-spacing="1">SR</text>
+            <rect x="134" y="120" width="32" height="38" stroke-width="3.5"/>
+            <rect x="334" y="120" width="32" height="38" stroke-width="3.5"/>
+            <line x1="150" y1="120" x2="150" y2="158" stroke-width="1.5"/><line x1="350" y1="120" x2="350" y2="158" stroke-width="1.5"/>
+
+            <!-- floors 4,3,2 windows -->
+            <use href="#winRow" y="188"/><use href="#winRow" y="258"/><use href="#winRow" y="328"/>
+            <!-- balconies (centre bay) -->
+            <path d="M230 230H270M230 300H270M230 370H270" stroke-width="5"/>
+            <path d="M234 230V240M246 230V240M258 230V240M266 230V240M234 300V310M246 300V310M258 300V310M266 300V310M234 370V380M246 370V380M258 370V380M266 370V380" stroke-width="1.5"/>
+
+            <!-- ground floor: entrance + shop fronts -->
+            <path d="M222 440V392H278V440" stroke-width="6"/>
+            <path d="M232 440V402H268V440M250 402V440" stroke-width="3"/>
+            <path d="M216 392H284" stroke-width="5"/>
+            <rect x="134" y="396" width="52" height="44" stroke-width="3.5"/><rect x="314" y="396" width="52" height="44" stroke-width="3.5"/>
+            <line x1="160" y1="396" x2="160" y2="440" stroke-width="1.5"/><line x1="340" y1="396" x2="340" y2="440" stroke-width="1.5"/>
+            <!-- steps + ground -->
+            <path d="M205 448H295M195 456H305" stroke-width="4"/>
+            <path d="M70 440H205M295 440H430" stroke-width="8"/>
+          </svg>
+        </div>
+
+        <!-- LAYER 2: Invoice content -->
+        <div class="receipt-foreground">
+          <div class="text-center border-b-4 border-double border-indigo-900 pb-4">
+            <div class="inline-flex items-center justify-center px-4 py-2 bg-indigo-900 text-white rounded-full text-[10px] font-bold tracking-[0.24em] uppercase mb-3">Official Receipt</div>
+            <div class="flex items-center justify-center gap-4">
+              <!-- Real-estate logo -->
+              <svg class="sr-logo" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-label="S R Enterprises logo">
+                <rect x="2" y="2" width="76" height="76" rx="14" fill="#1e1b4b"/>
+                <rect x="6" y="6" width="68" height="68" rx="10" fill="none" stroke="#fbbf24" stroke-width="1.5"/>
+                <path d="M16 30L40 12L64 30" fill="none" stroke="#fbbf24" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M22 32V52H58V32" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+                <path d="M33 52V40H47V52" fill="none" stroke="#fff" stroke-width="2.5"/>
+                <rect x="26" y="36" width="5" height="6" fill="#fff"/><rect x="49" y="36" width="5" height="6" fill="#fff"/>
+                <rect x="36" y="22" width="8" height="8" fill="#fbbf24"/>
+                <text x="40" y="66" text-anchor="middle" font-family="Georgia,serif" font-size="13" font-weight="700" fill="#fbbf24" letter-spacing="2">SR</text>
+              </svg>
+              <div class="text-left">
+                <h1 class="text-3xl font-extrabold leading-none text-indigo-900 tracking-wide">S R <span class="text-amber-600">ENTERPRISES</span></h1>
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="h-[2px] w-8 bg-amber-500"></span>
+                  <p class="text-[11px] font-bold tracking-[0.28em] uppercase text-gray-700">Real Estate &amp; Property Consultants</p>
+                  <span class="h-[2px] w-8 bg-amber-500"></span>
+                </div>
+                <p class="text-sm font-semibold mt-1 leading-tight text-gray-700">Sale • Rent • Purchase • Plot</p>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-row flex-nowrap justify-center gap-3 text-[10px] text-gray-700 overflow-x-auto">
+              <p class="inline-flex items-center gap-1 rounded-full bg-gray-100 border border-gray-200 px-3 py-1 whitespace-nowrap"><span class="text-indigo-900 font-semibold">📍</span><span class="leading-tight">Shop NO-10, Agroli Gaon, Sec-29, CBD Belapur, Navi Mumbai 400614</span></p>
+              <p class="inline-flex items-center gap-1 rounded-full bg-green-50 border border-green-200 px-3 py-1 whitespace-nowrap"><span class="text-green-600">📞</span> +91-7021709371</p>
+              <p class="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 whitespace-nowrap"><span class="text-blue-600">✉️</span> rdinesh7021@gmail.com</p>
+            </div>
           </div>
-          <h1 class="text-3xl font-extrabold leading-tight text-indigo-900">
-            S R <span class="text-amber-600">ENTERPRISES</span>
-          </h1>
-          <p class="text-sm font-semibold mt-1 leading-tight text-gray-700">Sale • Rent • Purchase • Plot</p>
-          <div class="mt-3 flex flex-row flex-nowrap justify-center gap-3 text-[10px] text-gray-700 overflow-x-auto">
-            <p class="inline-flex items-center gap-1 rounded-full bg-gray-100 border border-gray-200 px-3 py-1 whitespace-nowrap">
-              <span class="text-indigo-900 font-semibold">📍</span>
-              <span class="leading-tight">Shop NO-10, Agroli Gaon, Sec-29, CBD Belapur, Navi Mumbai 400614</span>
-            </p>
-            <p class="inline-flex items-center gap-1 rounded-full bg-green-50 border border-green-200 px-3 py-1 whitespace-nowrap">
-              <span class="text-green-600">📞</span> +91-7021709371
-            </p>
-            <p class="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 whitespace-nowrap">
-              <span class="text-blue-600">✉️</span> rdinesh7021@gmail.com
-            </p>
+
+          <div class="flex justify-between mt-3">
+            <h2 class="text-xl font-bold">INVOICE</h2>
+            <div class="text-right text-xs">
+              <p><strong>Invoice No :</strong> <span id="dispInvoice">6/2026</span></p>
+              <p><strong>Date :</strong> <span id="dispDate">05/05/2026</span></p>
+            </div>
+          </div>
+
+          <div class="mt-2">
+            <p class="text-xs font-medium">To,</p>
+            <p class="font-bold text-sm" id="dispName">MR. NANDAN NAMBIAR</p>
+            <p class="text-xs" id="dispAddr1">BANK OF MAHARASHTRA</p>
+            <p class="text-xs" id="dispAddr2">SECTOR-1, CBD BELAPUR</p>
+            <p class="text-xs" id="dispAddr3">NAVI MUMBAI 400614</p>
+          </div>
+
+          <table class="w-full mt-3 border border-black text-xs">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="border border-black p-2 text-left">PARTICULARS</th>
+                <th class="border border-black p-2 text-center">FLAT NO</th>
+                <th class="border border-black p-2 text-right">AMOUNT</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="border border-black p-2"><strong>Flat given on - <span id="dispType">Rent</span></strong><br><span id="dispFlatDetails" class="text-xs"></span></td>
+                <td class="border border-black p-2 text-center font-bold" id="dispFlatNo">403</td>
+                <td class="border border-black p-2 text-right font-bold" id="dispAmount">Rs. 54,000/-</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="flex justify-end mt-3">
+            <div class="text-right">
+              <p class="text-sm font-bold">TOTAL AMOUNT</p>
+              <p class="text-lg font-bold" id="dispTotal">Rs. 54,000/-</p>
+            </div>
+          </div>
+
+          <div class="mt-2 text-xs">
+            <strong>Amount in words :</strong>
+            <span id="dispWords" class="italic block mt-1">Fifty Four Thousand Only</span>
+          </div>
+
+          <!-- LAYER 3: Permanent NOTE (bottom-left, CAPS) + Signature (bottom-right) -->
+          <div class="mt-6 flex justify-between items-end">
+            <div class="receipt-note">
+              <p class="font-bold">NOTE:</p>
+              <p>KINDLY ISSUE CHEQUE IN FAVOUR OF SUNIL ROKADE.</p>
+              <p>THANK YOU FOR YOUR BUSINESS!</p>
+            </div>
+            <div class="text-center">
+              <div class="w-40 h-12 border-b-2 border-black"></div>
+              <p class="font-bold text-xs mt-1">FOR S R ENTERPRISES</p>
+              <p class="text-xs">PROPRIETOR / AUTHORIZED SIGNATORY</p>
+            </div>
           </div>
         </div>
 
-        <div class="flex justify-between mt-3">
-          <h2 class="text-xl font-bold">INVOICE</h2>
-          <div class="text-right text-xs">
-            <p><strong>Invoice No :</strong> <span id="dispInvoice">6/2026</span></p>
-            <p><strong>Date :</strong> <span id="dispDate">05/05/2026</span></p>
-          </div>
-        </div>
-
-        <div class="mt-2">
-          <p class="text-xs font-medium">To,</p>
-          <p class="font-bold text-sm" id="dispName">MR. NANDAN NAMBIAR</p>
-          <p class="text-xs" id="dispAddr1">BANK OF MAHARASHTRA</p>
-          <p class="text-xs" id="dispAddr2">SECTOR-1, CBD BELAPUR</p>
-          <p class="text-xs" id="dispAddr3">NAVI MUMBAI 400614</p>
-        </div>
-
-        <table class="w-full mt-3 border border-black text-xs">
-          <thead>
-            <tr class="bg-gray-100">
-              <th class="border border-black p-2 text-left">PARTICULARS</th>
-              <th class="border border-black p-2 text-center">FLAT NO</th>
-              <th class="border border-black p-2 text-right">AMOUNT</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="border border-black p-2">
-                <strong>Flat given on - <span id="dispType">Rent</span></strong><br>
-                <span id="dispFlatDetails" class="text-xs"></span>
-              </td>
-              <td class="border border-black p-2 text-center font-bold" id="dispFlatNo">403</td>
-              <td class="border border-black p-2 text-right font-bold" id="dispAmount">Rs. 54,000/-</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="flex justify-end mt-3">
-          <div class="text-right">
-            <p class="text-sm font-bold">TOTAL AMOUNT</p>
-            <p class="text-lg font-bold" id="dispTotal">Rs. 54,000/-</p>
-          </div>
-        </div>
-
-        <div class="mt-2 text-xs">
-          <strong>Amount in words :</strong> 
-          <span id="dispWords" class="italic block mt-1">Fifty Four Thousand Only</span>
-        </div>
-
-        <!-- Permanent Note + Signature -->
-        <div class="mt-4 flex justify-between items-end">
-
-          <!-- Note - Bottom Left -->
-          <div class="text-left text-[10px] leading-relaxed max-w-[60%]">
-            <p class="font-bold uppercase">Note:</p>
-            <p>
-              Kindly issue cheque in favour of
-              <strong>SUNIL ROKADE</strong>.
-            </p>
-            <p>Thank you for your business!</p>
-          </div>
-
-          <!-- Signature - Bottom Right -->
-          <div class="text-center">
-            <div class="w-40 h-12 border-b-2 border-black"></div>
-            <p class="font-bold text-xs mt-1">FOR S R ENTERPRISES</p>
-            <p class="text-xs">PROPRIETOR / AUTHORIZED SIGNATORY</p>
-          </div>
-
-        </div>
       </div>
     </div>
 
     <div class="text-center mt-6 no-print">
-      <button onclick="window.print()" 
-              class="bg-black text-white px-8 py-3 rounded-lg text-base font-medium hover:bg-gray-800">
-        Print / Save as PDF
-      </button>
+      <button onclick="window.print()" class="bg-black text-white px-8 py-3 rounded-lg text-base font-medium hover:bg-gray-800">Print / Save as PDF</button>
     </div>
   </div>
 
   <script>
     function numberToWords(num) {
       if (num === 0) return "Zero Only";
-      const below20 = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
-                       "Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+      const below20 = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
       const tens = ["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
       const scales = ["","Thousand","Lakh","Crore"];
       function convertHundreds(n) {
@@ -381,27 +304,21 @@
         const d = new Date(date);
         date = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
       }
-      const name     = document.getElementById('customerName').value.toUpperCase();
-      const addr1    = document.getElementById('address1').value;
-      const addr2    = document.getElementById('address2').value;
-      const addr3    = document.getElementById('address3').value;
-      const type     = document.getElementById('type').value;
-      const flatDetails = document.getElementById('flatDetails').value;
-      const flatNo   = document.getElementById('flatNo').value;
-      const amount   = parseInt(document.getElementById('amount').value) || 0;
+      const name = document.getElementById('customerName').value.toUpperCase();
+      const amount = parseInt(document.getElementById('amount').value) || 0;
 
-      document.getElementById('dispInvoice').textContent    = invoiceNo;
-      document.getElementById('dispDate').textContent       = date;
-      document.getElementById('dispName').textContent       = name;
-      document.getElementById('dispAddr1').textContent      = addr1;
-      document.getElementById('dispAddr2').textContent      = addr2;
-      document.getElementById('dispAddr3').textContent      = addr3;
-      document.getElementById('dispType').textContent       = type;
-      document.getElementById('dispFlatDetails').textContent = flatDetails;
-      document.getElementById('dispFlatNo').textContent     = flatNo;
-      document.getElementById('dispAmount').textContent     = `Rs. ${amount.toLocaleString('en-IN')}/-`;
-      document.getElementById('dispTotal').textContent      = `Rs. ${amount.toLocaleString('en-IN')}/-`;
-      document.getElementById('dispWords').textContent      = numberToWords(amount);
+      document.getElementById('dispInvoice').textContent = invoiceNo;
+      document.getElementById('dispDate').textContent = date;
+      document.getElementById('dispName').textContent = name;
+      document.getElementById('dispAddr1').textContent = document.getElementById('address1').value;
+      document.getElementById('dispAddr2').textContent = document.getElementById('address2').value;
+      document.getElementById('dispAddr3').textContent = document.getElementById('address3').value;
+      document.getElementById('dispType').textContent = document.getElementById('type').value;
+      document.getElementById('dispFlatDetails').textContent = document.getElementById('flatDetails').value;
+      document.getElementById('dispFlatNo').textContent = document.getElementById('flatNo').value;
+      document.getElementById('dispAmount').textContent = `Rs. ${amount.toLocaleString('en-IN')}/-`;
+      document.getElementById('dispTotal').textContent = `Rs. ${amount.toLocaleString('en-IN')}/-`;
+      document.getElementById('dispWords').textContent = numberToWords(amount);
     }
 
     window.onload = generateReceipt;
